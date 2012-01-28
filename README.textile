@@ -2,4 +2,4 @@ h3. READ LICENSE
 
 This file contains my most recent xmonad config 
  place in ~/.xmonad/ and compile with
-@ xmonad --recompile& xmonad --restart  @
+@xmonad --recompile& xmonad --restart@
