@@ -145,7 +145,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
     -- Ldmenu
     , ((modm,               xK_p     ), spawn ("dmenu_run " ++ argumenu ))
-    -- Ldmenu
+    -- Lgvim
     , ((modm,               xK_e     ), spawn "gvim")
     -- Lranger 
     , ((modm,               xK_f     ), raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'") (title =? "ranger"))
