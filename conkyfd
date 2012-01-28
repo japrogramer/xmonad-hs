@@ -1,0 +1,16 @@
+out_to_x no
+background no
+double_buffer yes 
+out_to_console yes 
+own_window yes 
+own_window_type override
+update_interval 4.0 
+font -*-terminus-*-*-*-*-12-*-*-*-*-*-iso8859-*
+
+
+TEXT
+^fg(\#AE3FFF) \
+^fg(\#A30EFF)^i(/home/japrogramer/.xmonad/icons/cpu.xbm) ${cpu cpu0}% \
+^i(/home/japrogramer/.xmonad/icons/mem.xbm) $memperc% \
+^i(/home/japrogramer/.xmonad/icons/arch.xbm) ${entropy_avail}/${entropy_poolsize} \
+^i(/home/japrogramer/.xmonad/icons/clock.xbm) ${time %b %e %a %w %I:%M:%S %p}
