@@ -89,7 +89,7 @@ myDzenPP      = defaultPP {
                         ppHidden = wrapBg myNormalBGColor . pad,
                         ppHiddenNoWindows = wrapBg myNormalBGColor,
                         ppUrgent = wrapFg myUrgentFGColor,
-                        ppTitle = (\x -> " " ++ wrapFg myNormalFGColor x),
+                        ppTitle =  shorten 80 . (\x -> " " ++ wrapFg myNormalFGColor x),
                         ppLayout  = dzenColor myNormalFGColor myNormalBGColor .
                                         (\x -> case x of
                                             "ResizableTall" -> wrapBitmap "half.xbm"
