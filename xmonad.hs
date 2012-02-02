@@ -168,7 +168,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
    , ((0            , 0x1008ff16), spawn "mocp -r")
    -- XF86AudioPlay
    , ((0            , 0x1008ff14), spawn "mocp -G")
-    -- close focused window
+   -- XF86AudioStop
+   --    , ((0,                          0x1008ff15  ), spawn "")
+   -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
      -- Rotate Layout Algorithms
     , ((modm,               xK_space ), sendMessage NextLayout             )
