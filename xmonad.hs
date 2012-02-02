@@ -149,12 +149,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
     -- Ldmenu
     , ((modm,               xK_p     ), spawn ("dmenu_run " ++ argumenu ))
-    -- Lgvim
-    , ((modm,               xK_e     ), spawn "gvim")
     -- Lranger 
     , ((modm,               xK_f     ), raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'") (title =? "ranger"))
     -- Lmocp 
     , ((modm .|. shiftMask, xK_m     ), raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'") (title =? "mocp"))
+    -- Lgvim
+    , ((modm .|. shiftMask, xK_e     ), spawn "gvim")
     -- Lelinks
     , ((modm .|. shiftMask, xK_o     ), raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'") (title =? "elinks"))
     -- Lnautalius
@@ -267,7 +267,7 @@ myColorizer = colorRangeFromClassName
          white = maxBound
 ------------------------------------------------------------------------
 -- Layouts:
-myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 4 ) gimpLayout $ myLayouts
+myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 7 ) gimpLayout $ myLayouts
     where
         myLayouts = tiled ||| Mirror tiled ||| Circle ||| Full
         gimpLayout = withIM (0.11) (Role "gimp-toolbox") $ reflectHoriz $ withIM (0.15) (Role "gimp-dock") Full
