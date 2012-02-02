@@ -16,9 +16,11 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName -- needed to work around buggy java
 
+import XMonad.Layout.IM
+import XMonad.Layout.Reflect
+import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.LayoutHints
 import XMonad.Layout.NoBorders
-import XMonad.Layout.PerWorkspace
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Named
 import XMonad.Layout.Spacing
@@ -97,6 +99,7 @@ myDzenPP      = defaultPP {
                                             "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
                                             "Full" -> wrapBitmap "full.xbm"
                                             "Circle" -> wrapBitmap "scorpio.xbm"
+                                            "IM ReflectX IM Full" -> wrapBitmap "pacman.xbm"
                                             _                      -> pad x
                                         )
                         }
@@ -264,12 +267,17 @@ myColorizer = colorRangeFromClassName
          white = maxBound
 ------------------------------------------------------------------------
 -- Layouts:
-myLayout = avoidStruts $ standardLayouts
-               where standardLayouts = tiled ||| Mirror tiled ||| Circle ||| Full
-                     tiled = ResizableTall nmaster delta ratio []
-                     nmaster = 1
-                     delta = 0.03
-                     ratio = 0.5
+myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 4 ) gimpLayout $ myLayouts
+    where
+        myLayouts = tiled ||| Mirror tiled ||| Circle ||| Full
+        gimpLayout = withIM (0.11) (Role "gimp-toolbox") $ reflectHoriz $ withIM (0.15) (Role "gimp-dock") Full
+        tiled = smartBorders (ResizableTall nmaster delta ratio [])
+        full = noBorders Full
+
+        nmaster = 1
+        delta = 3/100
+        ratio = toRational (2/(1 + sqrt 5 :: Double))
+
 ------------------------------------------------------------------------
 -- Window rules:
 -- To find the property name associated with a program, use
@@ -289,10 +297,9 @@ myManageHook = composeAll . concat $
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!2) | x <- my3Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!3) | x <- my4Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!4) | x <- my5Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!5) | x <- my6Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!5) | x <- my6Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!6) | x <- my7Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!7) | x <- my8Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!8) | x <- my9Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!8) | x <- my9Shifts]
     ]
         where
@@ -300,16 +307,16 @@ myManageHook = composeAll . concat $
             myCFloats = ["Ekiga", "XCalc", "Xmessage", "java-lang-Thread", "LCSMain", "Eclipse", "Ediff"] 
             myTFloats = ["Downloads", "Iceweasel Preferences", "Save As...", "Ediff"]
             myRFloats = []
-            myIgnores = ["desktop_window", "kdesktop"]
-            my1Shifts = ["Emacs"]
-            my2Shifts = ["Conkeror", "Iceweasel", "Firefox"]
-            my3Shifts = ["Ekiga","Skype","Pidgin"]
+            myIgnores = []
+            my1Shifts = []
+            my2Shifts = ["Firefox"]
+            my3Shifts = []
             my4Shifts = []
             my5Shifts = []
-            my6Shifts = ["Gimp"]
-            my7Shifts = ["Virtual-Box", "Wine"]
-            my8Shifts = ["MPlayer"]
-            my9Shifts = ["Amarok"]
+            my6Shifts = ["Wine"]
+            my7Shifts = ["Gimp"]
+            my8Shifts = []
+            my9Shifts = []
 ------------------------------------------------------------------------
 -- Event handling
 -- Defines a custom handler function for X Events. The function should
