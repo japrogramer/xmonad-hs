@@ -272,7 +272,7 @@ myColorizer = colorRangeFromClassName
          white = maxBound
 ------------------------------------------------------------------------
 -- Layouts:
-myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 7 ) gimpLayout $ myLayouts
+myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 6 ) gimpLayout $ myLayouts
     where
         myLayouts = tiled ||| Mirror tiled ||| Circle ||| Full
         gimpLayout = withIM (0.11) (Role "gimp-toolbox") $ reflectHoriz $ withIM (0.15) (Role "gimp-dock") Full
