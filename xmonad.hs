@@ -338,8 +338,8 @@ myStartupHook :: X ()
 myStartupHook = do
                 spawnOnce "gnome-settings-daemon"
                 spawnOnce "nm-applet"
-                spawnOnce "xsetroot -cursor_name plus -solid '#2e3436'"
---                spawn "xloadimage -onroot -fullscreen /usr/share/backgrounds/Stalking_Ocelot_by_Sayantan_Chaudhuri.jpg"
+                --spawnOnce "xsetroot -cursor_name plus -solid '#2e3436'"
+                spawnOnce "xloadimage -onroot -fullscreen /usr/share/backgrounds/Stalking_Ocelot_by_Sayantan_Chaudhuri.jpg"
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
 main = do
