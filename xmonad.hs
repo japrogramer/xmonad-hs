@@ -169,7 +169,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
    -- XF86AudioPlay
    , ((0            , 0x1008ff14), spawn "mocp -G")
    -- XF86AudioStop
-   --    , ((0,                          0x1008ff15  ), spawn "")
+   --, ((0            , 0x1008ff15), spawn "")
    -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
      -- Rotate Layout Algorithms
@@ -341,7 +341,7 @@ myStartupHook = do
                 spawnOnce "gnome-settings-daemon"
                 spawnOnce "nm-applet"
                 --spawnOnce "xsetroot -cursor_name plus -solid '#2e3436'"
-                spawnOnce "xloadimage -onroot -fullscreen /usr/share/backgrounds/Stalking_Ocelot_by_Sayantan_Chaudhuri.jpg"
+                spawnOnce "xloadimage -onroot -fullscreen /usr/share/backgrounds/Mount_Snowdon,_Wales_by_Adam_Vellender.jpg"
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
 main = do
