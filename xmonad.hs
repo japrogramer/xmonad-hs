@@ -35,6 +35,7 @@ import XMonad.Util.SpawnOnce
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
 
 import Data.Monoid
+import Data.Char
 import Control.Monad (liftM2)
 
 import qualified XMonad.Layout.Magnifier as Mag
@@ -89,7 +90,7 @@ myDzenPP      = defaultPP {
                         ppHidden = wrapBg myNormalBGColor . pad,
                         ppHiddenNoWindows = wrapBg myNormalBGColor,
                         ppUrgent = wrapFg myUrgentFGColor,
-                        ppTitle =  shorten 80 . (\x -> " " ++ wrapFg myNormalFGColor x),
+                        ppTitle =  shorten 60 . (\x -> " " ++ wrapFg myNormalFGColor (takeWhile (isLetter) x)),
                         ppLayout  = dzenColor myNormalFGColor myNormalBGColor .
                                         (\x -> case x of
                                             "ResizableTall" -> wrapBitmap "half.xbm"
