@@ -162,9 +162,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Ltime 
     , ((modm .|. shiftMask, xK_t     ), raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'") (title =? "tty-clock"))
     -- moc controls
-    --, ("M-S-z"      , safeSpawn "mocp" ["-G"])                -- play/pause
-    --, ("M-S-,"      , safeSpawn "mocp" ["-r"])                -- rev
-    --, ("M-S-."      , safeSpawn "mocp" ["-f"])                -- fwd
+    -- XF86AudioNext
+   , ((0            , 0x1008ff17), spawn "mocp -f")
+   -- XF86AudioPrev
+   , ((0            , 0x1008ff16), spawn "mocp -r")
+   -- XF86AudioPlay
+   , ((0            , 0x1008ff14), spawn "mocp -G")
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
      -- Rotate Layout Algorithms
