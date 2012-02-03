@@ -180,9 +180,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_g     ), windowPromptGoto myXPConfig        )
     , ((modm .|. shiftMask, xK_b     ), windowPromptBring myXPConfig       )
     -- Display grid select test
-    , ((modm, xK_g), goToSelected $ gsconfig2 myColorizer                  )
+    , ((modm,               xK_g), goToSelected $ gsconfig2 myColorizer    )
     -- Display runapps grid test
-    --, ((modm, xK_s), spawnSelected  gsconfig1 ["xterm","mocp","gvim"])
+    --, ((modm,               xK_s), spawnSelected gsconfig1 ["xterm","mocp","gvim"])
     -- display grid select and go
     --, ((modMask .|. shiftMask, xK_g), gridselectWorkspace myGSConfig W.view) 
     -- Resize viewed windows to the correct size
@@ -247,20 +247,12 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     ]
 ------------------------------------------------------------------------
 -- grid colors
---appFontXft :: String
---appFontXft = "xft:Inconsolata:pixelsize=12" 
---appFontXft = concat [ "xft:"
-                     --,"Sans:"
-                     --,"pixelsize=11:"
-                     --,"weight=regular:"
-                     --,"width=semicondensed:"
-                     --,"dpi=96:hinting=true:"
-                     --,"hintstyle=hintslight:"
-                     --,"antialias=true:"
-                     --,"rgba=rgb:"
-                     --,"lcdfilter=lcdlight"]
---gsconfig1 = defaultGSConfig { gs_cellheight = 30, gs_font = "xft:Terminus:pixelsize=12", gs_cellwidth = 100 }
-gsconfig2 colorizer = (buildDefaultGSConfig colorizer) { gs_cellheight = 24, gs_font = "xft:Terminus:pixelsize=12", gs_cellpadding = 5 }
+gsconfig1 = defaultGSConfig { gs_cellheight = 30, gs_font = "xft:Terminus:pixelsize=12", gs_cellwidth = 100 }
+gsconfig2 colorizer = (buildDefaultGSConfig colorizer) { 
+                                gs_cellheight = 24,
+                                gs_font = "xft:Terminus:pixelsize=12",
+                                gs_cellpadding = 5 
+                                }
 -- grid colors
 myColorizer = colorRangeFromClassName
                       (0x66,0x66,0x99) -- lowest inactive bg
@@ -268,8 +260,8 @@ myColorizer = colorRangeFromClassName
                       (0x0D,0x17,0x1A) -- active bg
                       black            -- inactive fg
                       white            -- active fg
-   where black = minBound
-         white = maxBound
+                where black = minBound
+                      white = maxBound
 ------------------------------------------------------------------------
 -- Layouts:
 myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 6 ) gimpLayout $ myLayouts
