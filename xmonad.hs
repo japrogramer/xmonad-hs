@@ -1,4 +1,5 @@
--- imports
+--  vim: set foldmarker={{{,}}} foldlevel=0 foldmethod=marker :
+-- imports {{{
 import System.Exit
 import System.IO
 import System.Posix.Unistd
@@ -43,12 +44,14 @@ import Control.Monad (liftM2)
 import qualified XMonad.Layout.Magnifier as Mag
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
+-- }}}
 ------------------------------------------------------------------------
--- Urgency hint options extra
+-- Urgency hint options extra {{{
 myUrgencyHook = withUrgencyHook dzenUrgencyHook
     { args = ["-x", "0", "-y", "184", "-h", "16", "-w", "320", "-ta ", "r", "-expand", "l", "-fg", "" ++ myUrgentFGColor ++ "", "-bg", "" ++ myNormalBGColor ++ "", "-fn", "" ++ myFont ++ ""] }
+-- }}}
 ------------------------------------------------------------------------
--- Color, font and ico,path definitions:
+-- Color, font and ico,path definitions: {{{
 myBitmapsPath = "/home/japrogramer/.xmonad/icons/"
 myFont = "-*-terminus-*-*-*-*-12*-*-*-*-*"
 myIconDir = "/home/japrogramer/.xmonad/icons"
@@ -61,7 +64,9 @@ myUrgentBGColor = "#0077ff"
 myIconFGColor = "#777777"
 myIconBGColor = "#0f0f0f"
 mySeperatorColor = "#555555"
+-- }}}
 ------------------------------------------------------------------------
+-- normal settings {{{
 myNormalBorderColor  =  myNormalBGColor 
 myFocusedBorderColor =  myNormalFGColor 
 
@@ -72,8 +77,9 @@ myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
 -- Width of the window border in pixels.
 myBorderWidth   = 1
+-- }}}
 ------------------------------------------------------------------------
--- Dzen configs
+-- Dzen configs {{{
 myDzenEvents = "-e 'button3=' "
 -- dzen general options
 myDzenGenOpts = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' " 
@@ -108,14 +114,16 @@ myDzenPP      = defaultPP {
                                 wrapFg color content = wrap ("^fg(" ++ color ++ ")") "^fg()" content
                                 wrapBg color content = wrap ("^bg(" ++ color ++ ")") "^bg()" content
                                 wrapBitmap bitmap = "^p(5)^i(" ++ myBitmapsPath ++ bitmap ++ ")^p(5)"
+-- }}}
 ------------------------------------------------------------------------
--- workspaces
+-- workspaces {{{
 myWorkspaces         :: [WorkspaceId]
 myWorkspaces         =  clickable . (map dzenEscape) $ ["λ","¥","ψ","δ","Σ","ζ","η","θ","¤"]
                                 where clickable l     = [  ws  | (i,ws) <- zip [1..] l, let n = if i == 10 then i else 0 ]
 --where clickable l     = [ "^ca(1,xdotool key super+" ++ show (n) ++ ")" ++ ws ++ "^ca()" | (i,ws) <- zip [1..] l, let n = if i == 10 then i else 0 ]
+-- }}}
 ------------------------------------------------------------------------
---myxpconfig
+--myxpconfig {{{
 myXPConfig =
     XPC { font              = myFont 
         , bgColor           = myNormalBGColor
@@ -135,11 +143,13 @@ myXPConfig =
         , showCompletionOnTab = False
         , searchPredicate   = isPrefixOf
         }
+-- }}}
 ------------------------------------------------------------------------
--- modMask the default windows key" is usually mod4Mask.
+-- modMask the default windows key" is usually mod4Mask.{{{
 myModMask       = mod4Mask
+-- }}}
 ------------------------------------------------------------------------
--- Key bindings. Add, modify or remove key bindings here.
+-- Key bindings. Add, modify or remove key bindings here.{{{
 --
 argumenu = "-b -nb '#2e3436' -nf '#736AFF' -sb '#A30EFF' -sf '#736AFF' -fn '-*-terminus-*-*-*-*-12*-*-*-*-*'"
 --
@@ -232,8 +242,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     --[((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
         -- | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
         -- , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
+-- }}}
 ------------------------------------------------------------------------
--- Mouse bindings: default actions bound to mouse events
+-- Mouse bindings: default actions bound to mouse events {{{
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-button1, Set the window to floating mode and move by dragging
     [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w
@@ -245,8 +256,9 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
                                        >> windows W.shiftMaster))
     -- possible bind events to the mouse scroll wheel (button4 and button5)
     ]
+-- }}}
 ------------------------------------------------------------------------
--- grid colors
+-- grid colors {{{
 gsconfig1 = defaultGSConfig { gs_cellheight = 30, gs_font = "xft:Terminus:pixelsize=12", gs_cellwidth = 100 }
 gsconfig2 colorizer = (buildDefaultGSConfig colorizer) { 
                                 gs_cellheight = 24,
@@ -262,8 +274,9 @@ myColorizer = colorRangeFromClassName
                       white            -- active fg
                 where black = minBound
                       white = maxBound
+-- }}}
 ------------------------------------------------------------------------
--- Layouts:
+-- Layouts: {{{
 myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 6 ) gimpLayout $ myLayouts
     where
         myLayouts = tiled ||| Mirror tiled ||| Circle ||| Full
@@ -275,8 +288,9 @@ myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 6 ) gimpLayout $ myLayouts
         delta = 3/100
         ratio = toRational (2/(1 + sqrt 5 :: Double))
 
+-- }}}
 ------------------------------------------------------------------------
--- Window rules:
+-- Window rules: {{{
 -- To find the property name associated with a program, use
 -- > xprop | grep WM_CLASS
 -- and click on the client you're interested in.
@@ -314,28 +328,32 @@ myManageHook = composeAll . concat $
             my7Shifts = ["Gimp"]
             my8Shifts = []
             my9Shifts = []
+-- }}}
 ------------------------------------------------------------------------
--- Event handling
+-- Event handling {{{
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 myEventHook = mempty
+-- }}}
 ------------------------------------------------------------------------
--- Status bars and logging
+-- Status bars and logging {{{
 -- Perform an arbitrary action on each internal state change or X event.
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 --myLogHook  = return () 
+-- }}}
 ------------------------------------------------------------------------
--- Startup hook
+-- Startup hook {{{
 myStartupHook :: X ()
 myStartupHook = do
                 spawnOnce "gnome-settings-daemon"
                 spawnOnce "nm-applet"
                 --spawnOnce "xsetroot -cursor_name plus -solid '#2e3436'"
                 spawnOnce "xloadimage -onroot -fullscreen /usr/share/backgrounds/Mount_Snowdon,_Wales_by_Adam_Vellender.jpg"
+-- }}}
 ------------------------------------------------------------------------
--- Now run xmonad with all the defaults we set up.
+-- Now run xmonad with all the defaults we set up.{{{
 main = do
     myStatusBarPipe <- spawnPipe myWorkspaceBar
     conckyBar <- spawnPipe ( "conky -c ~/.xmonad/conkyfd | " ++ myConkyBar)
@@ -360,3 +378,4 @@ main = do
         logHook            = logHook' myStatusBarPipe, 
         startupHook        = myStartupHook
     }
+-- }}}
