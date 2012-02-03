@@ -183,14 +183,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
    -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
      -- Rotate Layout Algorithms
-    , ((modm,               xK_space ), sendMessage NextLayout             )
+    , ((modm,               xK_space ), sendMessage NextLayout               )
     --  Reset the layouts on workspace
-    , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf )
+    , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf   )
     -- prompt
-    , ((modm .|. shiftMask, xK_g     ), windowPromptGoto myXPConfig        )
-    , ((modm .|. shiftMask, xK_b     ), windowPromptBring myXPConfig       )
+    , ((modm .|. shiftMask, xK_g     ), windowPromptGoto myXPConfig          )
+    , ((modm .|. shiftMask, xK_b     ), windowPromptBring myXPConfig         )
     -- Display grid select test
-    , ((modm,               xK_g), goToSelected $ gsconfig2 myColorizer    )
+    , ((modm,               xK_g     ), goToSelected $ gsconfig2 myColorizer )
     -- Display runapps grid test
     --, ((modm,               xK_s), spawnSelected gsconfig1 ["xterm","mocp","gvim"])
     -- display grid select and go
@@ -259,7 +259,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- }}}
 ------------------------------------------------------------------------
 -- grid colors {{{
-gsconfig1 = defaultGSConfig { gs_cellheight = 30, gs_font = "xft:Terminus:pixelsize=12", gs_cellwidth = 100 }
+--gsconfig1 = defaultGSConfig { gs_cellheight = 30, gs_font = "xft:Terminus:pixelsize=12", gs_cellwidth = 100 }
 gsconfig2 colorizer = (buildDefaultGSConfig colorizer) { 
                                 gs_cellheight = 24,
                                 gs_font = "xft:Terminus:pixelsize=12",
