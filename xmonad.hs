@@ -164,7 +164,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Lmocp 
     , ((modm .|. shiftMask, xK_m     ), raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'") (title =? "mocp"))
     -- Lgvim
-    , ((modm .|. shiftMask, xK_e     ), spawn "gvim")
+    , ((modm .|. shiftMask, xK_e     ), raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'") (title =? "gvim"))
     -- Lelinks
     , ((modm .|. shiftMask, xK_o     ), raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'") (title =? "elinks"))
     -- Lnautalius
@@ -260,7 +260,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 ------------------------------------------------------------------------
 -- grid colors {{{
 --gsconfig1 = defaultGSConfig { gs_cellheight = 30, gs_font = "xft:Terminus:pixelsize=12", gs_cellwidth = 100 }
-gsconfig2 colorizer = (buildDefaultGSConfig colorizer) { 
+gsconfig2 colorizer = (buildDefaultGSConfig colorizer) {
                                 gs_cellheight = 24,
                                 gs_font = "xft:Terminus:pixelsize=12",
                                 gs_cellpadding = 5 
