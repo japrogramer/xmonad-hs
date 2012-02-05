@@ -84,10 +84,10 @@ myDzenEvents = "-e 'button3=' "
 -- dzen general options
 myDzenGenOpts = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' " 
 -- Status Bar
-myWorkspaceBar = "dzen2 -p -ta l -w 940 " 
+myWorkspaceBar = "dzen2 -p -ta l -w 740 " 
                  ++ myDzenEvents  ++ myDzenGenOpts
 -- Conky Bar
-myConkyBar = "dzen2 -p -ta r -x 940 -w 340 " ++ myDzenGenOpts
+myConkyBar = "dzen2 -p -ta r -x 740 -w 540 " ++ myDzenGenOpts
 -------------------------------------------------------------------------------
 -- Looks --
 myDzenPP      = defaultPP {
