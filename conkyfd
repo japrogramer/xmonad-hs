@@ -12,6 +12,7 @@ TEXT
 ^fg(\#AE3FFF) \
 ${if_up wlan0}^fg()^i(/home/japrogramer/.xmonad/icons/wifi_02.xbm) ^i(/home/japrogramer/.xmonad/icons/net_up_03.xbm) ^fg()${upspeed wlan0} ^i(/home/japrogramer/.xmonad/icons/net_down_03.xbm) ^fg()${downspeed wlan0}${endif} \
 ^i(/home/japrogramer/.xmonad/icons/cpu.xbm) ${cpu cpu0}% \
+^i(/home/japrogramer/.xmonad/icons/temp.xbm) ${hwmon 0 temp 1} \
 ^i(/home/japrogramer/.xmonad/icons/mem.xbm) $memperc% \
 ^i(/home/japrogramer/.xmonad/icons/arch.xbm) ${entropy_avail}/${entropy_poolsize} \
 ^i(/home/japrogramer/.xmonad/icons/clock.xbm) ${time %b %e %a %w %I:%M:%S %p} ^i(/home/japrogramer/.xmonad/icons/shroom.xbm)
