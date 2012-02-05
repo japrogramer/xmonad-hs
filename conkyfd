@@ -6,11 +6,12 @@ own_window yes
 own_window_type override
 update_interval 4.0 
 font -*-terminus-*-*-*-*-12-*-*-*-*-*-iso8859-*
-
+#^fg()^i(/home/japrogramer/.xmonad/icons/wifi_02.xbm) 
 
 TEXT
 ^fg(\#AE3FFF) \
-${if_up wlan0}^fg()^i(/home/japrogramer/.xmonad/icons/wifi_02.xbm) ^i(/home/japrogramer/.xmonad/icons/net_up_03.xbm) ^fg()${upspeed wlan0} ^i(/home/japrogramer/.xmonad/icons/net_down_03.xbm) ^fg()${downspeed wlan0}${endif} \
+${if_running mocp} ^fg()^i(/home/japrogramer/.xmonad/icons/play.xbm) ${exec mocp -Q %song | colrm 10 } ${endif} \
+${if_up wlan0}^i(/home/japrogramer/.xmonad/icons/net_up_03.xbm) ^fg()${upspeed wlan0} ^i(/home/japrogramer/.xmonad/icons/net_down_03.xbm) ^fg()${downspeed wlan0}${endif} \
 ^i(/home/japrogramer/.xmonad/icons/cpu.xbm) ${cpu cpu0}% \
 ^i(/home/japrogramer/.xmonad/icons/temp.xbm) ${hwmon 0 temp 1} \
 ^i(/home/japrogramer/.xmonad/icons/mem.xbm) $memperc% \
