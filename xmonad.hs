@@ -98,7 +98,7 @@ myDzenPP      = defaultPP {
                         ppHidden = wrapBg myNormalBGColor . pad,
                         ppHiddenNoWindows = wrapBg myNormalBGColor,
                         ppUrgent = wrapFg myUrgentFGColor,
-                        ppTitle =  shorten 60 . (\x -> " " ++ wrapFg myNormalFGColor (filter (isPrint) x)),
+                        ppTitle =  shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) . (\x -> (filter (`elem` range ) x)),
                         ppLayout  = dzenColor myNormalFGColor myNormalBGColor .
                                         (\x -> case x of
                                             "ResizableTall" -> wrapBitmap "half.xbm"
@@ -114,6 +114,7 @@ myDzenPP      = defaultPP {
                                 wrapFg color content = wrap ("^fg(" ++ color ++ ")") "^fg()" content
                                 wrapBg color content = wrap ("^bg(" ++ color ++ ")") "^bg()" content
                                 wrapBitmap bitmap = "^p(5)^i(" ++ myBitmapsPath ++ bitmap ++ ")^p(5)"
+                                range = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ [ ' ' ]
 -- }}}
 ------------------------------------------------------------------------
 -- workspaces {{{
