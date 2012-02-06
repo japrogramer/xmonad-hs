@@ -25,6 +25,7 @@ import XMonad.Layout.LayoutHints
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Named
+import XMonad.Layout.Grid
 import XMonad.Layout.Spacing
 import XMonad.Layout.Circle
 import XMonad.Layout.WindowArranger
@@ -103,11 +104,12 @@ myDzenPP      = defaultPP {
                         ppTitle =  shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) . (\x -> (filter (`elem` range ) x)),
                         ppLayout  = dzenColor myNormalFGColor myNormalBGColor .
                                         (\x -> case x of
-                                            "ResizableTall" -> wrapBitmap "half.xbm"
+                                            "ResizableTall"        -> wrapBitmap "half.xbm"
                                             "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
-                                            "Full" -> wrapBitmap "full.xbm"
-                                            "Circle" -> wrapBitmap "scorpio.xbm"
-                                            "IM ReflectX IM Full" -> wrapBitmap "pacman.xbm"
+                                            "Full"                 -> wrapBitmap "full.xbm"
+                                            "Circle"               -> wrapBitmap "scorpio.xbm"
+                                            "IM ReflectX IM Full"  -> wrapBitmap "pacman.xbm"
+                                            "IM Grid"              -> "^p(5)#^p(5)"
                                             _                      -> pad x
                                         )
                         }
@@ -162,22 +164,31 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. mod3Mask , xK_Return), spawn $ XMonad.terminal conf)
     -- Ldmenu
     , ((modm              , xK_p     ), spawn ("dmenu_run " ++ argumenu ))
-    -- Lranger 
-    , ((modm              , xK_f     ), raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'") (title =? "ranger"))
-    -- Lmocp 
-    , ((modm .|. mod3Mask , xK_m     ), raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'") (title =? "mocp"))
+    -- Ltime
+    , ((modm .|. mod3Mask , xK_t     ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  )
+    -- Lranger
+    , ((modm              , xK_f     ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  )
+    -- Lmocp
+    , ((modm .|. mod3Mask , xK_m     ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  )
     -- Lgvim
-    , ((modm .|. mod3Mask , xK_e     ), raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'") (title =? "gvim"))
+    , ((modm .|. mod3Mask , xK_e     ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  )
     -- Lelinks
-    , ((modm .|. mod3Mask , xK_o     ), raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'") (title =? "elinks"))
+    , ((modm .|. mod3Mask , xK_o     ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  )
     -- Lirssi
-    , ((modm .|. mod3Mask , xK_i     ), raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'") (title =? "irssi"))
+    , ((modm .|. mod3Mask , xK_i     ) , raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'"                   ) (title =? "irssi"     )  )
     -- Lfirefox
-    , ((modm .|. mod3Mask , xK_f     ), spawn "firefox")
+    , ((modm .|. mod3Mask , xK_f     ) , spawn "firefox"               )
+    -- Lpidgin
+    , ((modm .|. mod3Mask , xK_f     ) , spawn "pidgin"                )
     -- Lnautalius
-    , ((modm .|. mod3Mask , xK_n     ), spawn "nautilus --no-desktop")
-    -- Ltime 
-    , ((modm .|. mod3Mask , xK_t     ), raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'") (title =? "tty-clock"))
+    , ((modm .|. mod3Mask , xK_n     ) , spawn "nautilus --no-desktop" )
+   -- close focused window
+    , ((modm .|. mod3Mask , xK_c     ), kill)
+    -- prompt
+    , ((modm .|. mod3Mask , xK_g     ), windowPromptGoto myXPConfig          )
+    , ((modm .|. mod3Mask , xK_b     ), windowPromptBring myXPConfig         )
+    --  Reset the layouts on workspace
+    , ((modm .|. mod3Mask , xK_space ), setLayout $ XMonad.layoutHook conf   )
     -- moc controls
     -- XF86AudioNext
    ,  ((0            , 0x1008ff17), spawn "mocp -f")
@@ -187,15 +198,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
    ,  ((0            , 0x1008ff14), spawn "mocp -G")
    -- XF86AudioStop
    --, ((0            , 0x1008ff15), spawn "")
-   -- close focused window
-    , ((modm .|. mod3Mask , xK_c     ), kill)
      -- Rotate Layout Algorithms
     , ((modm              , xK_space ), sendMessage NextLayout               )
-    --  Reset the layouts on workspace
-    , ((modm .|. mod3Mask , xK_space ), setLayout $ XMonad.layoutHook conf   )
-    -- prompt
-    , ((modm .|. mod3Mask , xK_g     ), windowPromptGoto myXPConfig          )
-    , ((modm .|. mod3Mask , xK_b     ), windowPromptBring myXPConfig         )
     -- Display grid select test
     , ((modm              , xK_g     ), goToSelected $ gsconfig2 myColorizer )
     -- Display runapps grid test
@@ -301,17 +305,23 @@ myColorizer = colorRangeFromClassName
 -- }}}
 ------------------------------------------------------------------------
 -- Layouts: {{{
-myLayout = avoidStruts $ onWorkspace (myWorkspaces !! 6 ) gimpLayout $ myLayouts
-    where
-        myLayouts = tiled ||| Mirror tiled ||| Circle ||| Full
-        gimpLayout = withIM (0.11) (Role "gimp-toolbox") $ reflectHoriz $ withIM (0.15) (Role "gimp-dock") Full
-        tiled = smartBorders (ResizableTall nmaster delta ratio [])
-        full = noBorders Full
+myLayout = avoidStruts                                   $
+           onWorkspace (myWorkspaces !! 6 ) gimpLayout   $
+           onWorkspace (myWorkspaces !! 4 ) pidginLayout $
+           windowArrangeAll myLayouts
+                where
+                    myLayouts    = tiled ||| Mirror tiled ||| Circle ||| Full
+                    gimpLayout   = withIM (0.13) (Role "gimp-toolbox") $
+                                   reflectHoriz                        $
+                                   withIM (0.17) (Role "gimp-dock") Full
+                    tiled        = smartBorders (ResizableTall nmaster delta ratio [])
+                    full         = noBorders Full
+                    pidginLayout = withIM (1/ratio) (Role "buddy_list") Grid
 
-        nmaster = 1
-        delta = 3/100
-        ratio = toRational (2/(1 + sqrt 5 :: Double))
-
+                    nmaster      = 1
+                    delta        = 3/100
+                    ratio        = toRational goldenRatio
+                    goldenRatio  = 2/(1+sqrt(5)::Double);
 -- }}}
 ------------------------------------------------------------------------
 -- Window rules: {{{
@@ -331,7 +341,7 @@ myManageHook = composeAll . concat $
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!1) | x <- my2Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!2) | x <- my3Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!3) | x <- my4Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!4) | x <- my5Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!4) | x <- my5Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!5) | x <- my6Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!6) | x <- my7Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!7) | x <- my8Shifts]
@@ -347,7 +357,7 @@ myManageHook = composeAll . concat $
             my2Shifts = ["Firefox"]
             my3Shifts = []
             my4Shifts = []
-            my5Shifts = []
+            my5Shifts = ["Pidgin"]
             my6Shifts = ["Wine"]
             my7Shifts = ["Gimp"]
             my8Shifts = []
@@ -396,7 +406,7 @@ main = do
         mouseBindings      = myMouseBindings,
  
       -- hooks, layouts
-        layoutHook         = windowArrangeAll myLayout,
+        layoutHook         = myLayout,
         manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
         logHook            = logHook' myStatusBarPipe, 
