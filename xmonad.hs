@@ -170,8 +170,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. mod3Mask , xK_e     ), raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'") (title =? "gvim"))
     -- Lelinks
     , ((modm .|. mod3Mask , xK_o     ), raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'") (title =? "elinks"))
+    -- Lirssi
+    , ((modm .|. mod3Mask , xK_i     ), raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'") (title =? "irssi"))
+    -- Lfirefox
+    , ((modm .|. mod3Mask , xK_f     ), spawn "firefox")
     -- Lnautalius
-    , ((modm .|. mod3Mask , xK_n   ), spawn "nautilus --no-desktop")
+    , ((modm .|. mod3Mask , xK_n     ), spawn "nautilus --no-desktop")
     -- Ltime 
     , ((modm .|. mod3Mask , xK_t     ), raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'") (title =? "tty-clock"))
     -- moc controls
@@ -229,22 +233,22 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- See also the statusBar function from Hooks.DynamicLog.
     , ((modm              , xK_b ), sendMessage ToggleStruts)
     -- windowArranger settings 
-    , ((modm .|. controlMask              , xK_o ), sendMessage  Arrange         )
-    , ((modm .|. controlMask .|. mod3Mask , xK_o ), sendMessage  DeArrange       )
-    , ((modm .|. controlMask              , xK_h ), sendMessage (MoveLeft      10))
-    , ((modm .|. controlMask              , xK_l ), sendMessage (MoveRight     10))
-    , ((modm .|. controlMask              , xK_j ), sendMessage (MoveDown      10))
-    , ((modm .|. controlMask              , xK_k ), sendMessage (MoveUp        10))
+    , ((modm .|. shiftMask                , xK_o ), sendMessage  Arrange         )
+    , ((modm .|. shiftMask   .|. mod3Mask , xK_o ), sendMessage  DeArrange       )
+    , ((modm .|. shiftMask                , xK_h ), sendMessage (MoveLeft      10))
+    , ((modm .|. shiftMask                , xK_l ), sendMessage (MoveRight     10))
+    , ((modm .|. shiftMask                , xK_j ), sendMessage (MoveDown      10))
+    , ((modm .|. shiftMask                , xK_k ), sendMessage (MoveUp        10))
     , ((modm                 .|. mod3Mask , xK_h ), sendMessage (IncreaseLeft  10))
     , ((modm                 .|. mod3Mask , xK_l ), sendMessage (IncreaseRight 10))
     , ((modm                 .|. mod3Mask , xK_j ), sendMessage (IncreaseDown  10))
     , ((modm                 .|. mod3Mask , xK_k ), sendMessage (IncreaseUp    10))
-    , ((modm .|. controlMask .|. mod3Mask , xK_h ), sendMessage (DecreaseLeft  10))
-    , ((modm .|. controlMask .|. mod3Mask , xK_l ), sendMessage (DecreaseRight 10))
-    , ((modm .|. controlMask .|. mod3Mask , xK_j ), sendMessage (DecreaseDown  10))
-    , ((modm .|. controlMask .|. mod3Mask , xK_k ), sendMessage (DecreaseUp    10))
+    , ((modm .|. shiftMask   .|. mod3Mask , xK_h ), sendMessage (DecreaseLeft  10))
+    , ((modm .|. shiftMask   .|. mod3Mask , xK_l ), sendMessage (DecreaseRight 10))
+    , ((modm .|. shiftMask   .|. mod3Mask , xK_j ), sendMessage (DecreaseDown  10))
+    , ((modm .|. shiftMask   .|. mod3Mask , xK_k ), sendMessage (DecreaseUp    10))
     -- adjust for your monitor
-    , ((modm .|. controlMask .|. mod3Mask , xK_semicolon ), sendMessage (SetGeometry $ Rectangle 250 200 730 400))
+    , ((modm .|. shiftMask   .|. mod3Mask , xK_semicolon ), sendMessage (SetGeometry $ Rectangle 250 200 730 400))
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
     -- Restart xmonad
