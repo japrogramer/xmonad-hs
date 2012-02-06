@@ -15,7 +15,8 @@ import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.SetWMName -- needed to work around buggy java
+import XMonad.Hooks.SetWMName    -- needed to work around buggy java
+import XMonad.Hooks.EwmhDesktops -- needed to work around buggy java
 
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
@@ -26,6 +27,7 @@ import XMonad.Layout.ResizableTile
 import XMonad.Layout.Named
 import XMonad.Layout.Spacing
 import XMonad.Layout.Circle
+import XMonad.Layout.WindowArranger
 
 import XMonad.Prompt
 import XMonad.Prompt.AppLauncher as AL
@@ -84,7 +86,7 @@ myDzenEvents = "-e 'button3=' "
 -- dzen general options
 myDzenGenOpts = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' " 
 -- Status Bar
-myWorkspaceBar = "dzen2 -p -ta l -w 640 " 
+myWorkspaceBar = "dzen2 -p -ta l -w 640 "
                  ++ myDzenEvents  ++ myDzenGenOpts
 -- Conky Bar
 myConkyBar = "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts
@@ -225,7 +227,22 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Toggle the status bar gap
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
     -- See also the statusBar function from Hooks.DynamicLog.
-    --, ((modm              , xK_b     ), sendMessage ToggleStruts)
+    , ((modm              , xK_b     ), sendMessage ToggleStruts)
+    , ((modm .|. controlMask              , xK_o    ), sendMessage  Arrange         )
+    , ((modm .|. controlMask .|. shiftMask, xK_o    ), sendMessage  DeArrange       )
+    , ((modm .|. controlMask              , xK_h ), sendMessage (MoveLeft      10))
+    , ((modm .|. controlMask              , xK_l ), sendMessage (MoveRight     10))
+    , ((modm .|. controlMask              , xK_j ), sendMessage (MoveDown      10))
+    , ((modm .|. controlMask              , xK_k ), sendMessage (MoveUp        10))
+    , ((modm                 .|. shiftMask, xK_h ), sendMessage (IncreaseLeft  10))
+    , ((modm                 .|. shiftMask, xK_l ), sendMessage (IncreaseRight 10))
+    , ((modm                 .|. shiftMask, xK_j ), sendMessage (IncreaseDown  10))
+    , ((modm                 .|. shiftMask, xK_k ), sendMessage (IncreaseUp    10))
+    , ((modm .|. controlMask .|. shiftMask, xK_h ), sendMessage (DecreaseLeft  10))
+    , ((modm .|. controlMask .|. shiftMask, xK_l ), sendMessage (DecreaseRight 10))
+    , ((modm .|. controlMask .|. shiftMask, xK_j ), sendMessage (DecreaseDown  10))
+    , ((modm .|. controlMask .|. shiftMask, xK_k ), sendMessage (DecreaseUp    10))
+    , ((modm .|. controlMask .|. shiftMask, xK_semicolon ), sendMessage (SetGeometry $ Rectangle ( 640 )( 400 )( 300 )( 400 )))
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
     -- Restart xmonad
@@ -335,7 +352,7 @@ myManageHook = composeAll . concat $
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
-myEventHook = mempty
+myEventHook = fullscreenEventHook <+> docksEventHook
 -- }}}
 ------------------------------------------------------------------------
 -- Status bars and logging {{{
@@ -373,8 +390,8 @@ main = do
         mouseBindings      = myMouseBindings,
  
       -- hooks, layouts
-        layoutHook         = myLayout,
-        manageHook         = myManageHook,
+        layoutHook         = windowArrangeAll myLayout,
+        manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
         logHook            = logHook' myStatusBarPipe, 
         startupHook        = myStartupHook
