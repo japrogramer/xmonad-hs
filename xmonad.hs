@@ -417,8 +417,8 @@ myStartupHook = do
                 spawnOnce   " gnome-settings-daemon                                                                            "
                 spawnOnce   " nm-applet                                                                                        "
                 --spawnOnce " xsetroot -cursor_name plus -solid '#2e3436'                                                      "
-                --spawnOnce " sh -c /home/japrogramer/git-t/compton   -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6          "
                 spawnOnce   " compton                                                                                          "
+                --spawnOnce   " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6                                          "
                 spawnOnce   " xloadimage -onroot -fullscreen /usr/share/backgrounds/Mount_Snowdon,_Wales_by_Adam_Vellender.jpg "
 -- }}}
 ------------------------------------------------------------------------
