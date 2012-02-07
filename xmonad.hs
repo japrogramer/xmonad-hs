@@ -17,7 +17,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName    -- needed to work around buggy java
 import XMonad.Hooks.EwmhDesktops -- needed to work around buggy java
-import XMonad.Hooks.FadeWindows
+--import XMonad.Hooks.FadeWindows
 
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
@@ -85,42 +85,42 @@ myBorderWidth   = 1
 -- }}}
 ------------------------------------------------------------------------
 -- Dzen configs {{{
-myDzenEvents = "-e 'button3=' "
+myDzenEvents    = "-e 'button3=' "
 -- dzen general options
-myDzenGenOpts = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' " 
+myDzenGenOpts   = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' " 
 -- Status Bar
-myWorkspaceBar = "dzen2 -p -ta l -w 640 "
-                 ++ myDzenEvents  ++ myDzenGenOpts
+myWorkspaceBar  = "dzen2 -p -ta l -w 640 "
+                   ++ myDzenEvents  ++ myDzenGenOpts
 -- Conky Bar
-myConkyBar = "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts
+myConkyBar      =  "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts
 -------------------------------------------------------------------------------
 -- Looks --
-myDzenPP      = defaultPP {
-                        ppSep = "^bg(" ++ myNormalBGColor ++ ")^r(1,15)^bg()",
-                        ppWsSep = " ",
-                        ppCurrent = wrapFgBg myNormalBGColor myNormalFGColor . pad,
-                        ppVisible = wrapFgBg myNormalBGColor myNormalFGColor  . pad,
-                        ppHidden = wrapBg myNormalBGColor . pad,
-                        ppHiddenNoWindows = wrapBg myNormalBGColor,
-                        ppUrgent = wrapFg myUrgentFGColor,
-                        ppTitle =  shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) . (\x -> (filter (`elem` range ) x)),
-                        ppLayout  = dzenColor myNormalFGColor myNormalBGColor .
-                                        (\x -> case x of
-                                            "ResizableTall"        -> wrapBitmap "half.xbm"
-                                            "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
-                                            "Full"                 -> wrapBitmap "full.xbm"
-                                            "Circle"               -> wrapBitmap "scorpio.xbm"
-                                            "IM ReflectX IM Full"  -> wrapBitmap "pacman.xbm"
-                                            "IM Grid"              -> "^p(5)#^p(5)"
-                                            _                      -> pad x
-                                        )
-                        }
-                            where
-                                wrapFgBg fgColor bgColor content= wrap ("^fg(" ++ fgColor ++ ")^bg(" ++ bgColor ++ ")") "^fg()^bg()" content
-                                wrapFg color content = wrap ("^fg(" ++ color ++ ")") "^fg()" content
-                                wrapBg color content = wrap ("^bg(" ++ color ++ ")") "^bg()" content
-                                wrapBitmap bitmap = "^p(5)^i(" ++ myBitmapsPath ++ bitmap ++ ")^p(5)"
-                                range = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ [ ' ' ]
+myDzenPP        = defaultPP {
+                          ppSep             = "^bg(" ++ myNormalBGColor ++ ")^r(1,15)^bg()",
+                          ppWsSep           = " ",
+                          ppCurrent         = wrapFgBg myNormalBGColor myNormalFGColor . pad,
+                          ppVisible         = wrapFgBg myNormalBGColor myNormalFGColor  . pad,
+                          ppHidden          = wrapBg myNormalBGColor . pad,
+                          ppHiddenNoWindows = wrapBg myNormalBGColor,
+                          ppUrgent          = wrapFg myUrgentFGColor,
+                          ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) . (\x -> (filter (`elem` range ) x)),
+                          ppLayout          = dzenColor myNormalFGColor myNormalBGColor .
+                                                  (\x -> case x of
+                                                      "ResizableTall"        -> wrapBitmap "half.xbm"
+                                                      "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
+                                                      "Full"                 -> wrapBitmap "full.xbm"
+                                                      "Circle"               -> wrapBitmap "scorpio.xbm"
+                                                      "IM ReflectX IM Full"  -> wrapBitmap "pacman.xbm"
+                                                      "IM Grid"              -> "^p(5)#^p(5)"
+                                                      _                      -> pad x
+                                                  )
+                            }
+                                where
+                                    wrapFgBg fgColor bgColor content= wrap ("^fg(" ++ fgColor ++ ")^bg(" ++ bgColor ++ ")") "^fg()^bg()" content
+                                    wrapFg color content = wrap ("^fg(" ++ color ++ ")") "^fg()" content
+                                    wrapBg color content = wrap ("^bg(" ++ color ++ ")") "^bg()" content
+                                    wrapBitmap bitmap = "^p(5)^i(" ++ myBitmapsPath ++ bitmap ++ ")^p(5)"
+                                    range = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ [ ' ' ]
 -- }}}
 ------------------------------------------------------------------------
 -- workspaces {{{
@@ -167,7 +167,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Ldmenu
     , ((modm              , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  )
     -- Ldmenu
-    , ((modm              , xK_y      ) , spawn ("transset .5"                     )  )
+    , ((modm              , xK_minus  ) , spawn ("transset-df -a --dec .1"         )  )
+    -- Ldmenu
+    , ((modm              , xK_equal  ) , spawn ("transset-df -a --inc .1"         )  )
     -- LRcomp
     , ((modm              , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  )
     -- Ltime
@@ -371,38 +373,39 @@ myManageHook = composeAll . concat $
 -- }}}
 ------------------------------------------------------------------------
 -- fadehook {{{
-myFadeHook = composeAll [isUnfocused  --> transparency 0.3,
-                         --isFullscreen --> transparency 0.0,
-                         --isInProperty   " WM_WINDOW_ROLE      "  " browser                         " /=? False --> transparency 0.0,
-                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DOCK        " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_TOOLBAR     " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_MENU        " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_UTILITY     " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_SPLASH      " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DIALOG      " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_NORMAL      " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_STICKY            " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_VERT    " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_HORZ    " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_SHADED            " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_TASKBAR      " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_PAGER        " --> transparency 0.0,
-                         --isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_FULLSCREEN        " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_HIDDEN            " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_ABOVE             " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_BELOW             " --> transparency 0.0,
-                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_DEMANDS_ATTENTION " --> transparency 0.0,
-                         transparency 0.025
-                        ]
+--myFadeHook = composeAll . concat $ 
+--                [[ isUnfocused  --> transparency 0.3                                                                 ] ,
+                 --[ isFullscreen --> transparency 0.0                                                                        ] ,
+                 --[ isInProperty " WM_WINDOW_ROLE      "  " browser                         " /=? False --> transparency 0.0 ] ,
+                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DOCK        " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_TOOLBAR     " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_MENU        " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_UTILITY     " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_SPLASH      " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DIALOG      " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_NORMAL      " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_STICKY            " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_VERT    " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_HORZ    " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SHADED            " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_TASKBAR      " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_PAGER        " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_FULLSCREEN        " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_HIDDEN            " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_ABOVE             " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_BELOW             " --> transparency 0.0           ] ,
+                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_DEMANDS_ATTENTION " --> transparency 0.0           ] ,
+ --               [ transparency 0.025                                                                                         ]
+ --               ]
 -- }}}
 ------------------------------------------------------------------------
 -- Event handling {{{
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
-myEventHook = fullscreenEventHook <+> docksEventHook <+> fadeWindowsEventHook
+myEventHook = fullscreenEventHook <+> docksEventHook -- <+> fadeWindowsEventHook
 -- }}}
 ------------------------------------------------------------------------
 -- Status bars and logging {{{
@@ -445,7 +448,8 @@ main = do
         layoutHook         = myLayout,
         manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
-        logHook            = fadeWindowsLogHook myFadeHook <+> logHook' myStatusBarPipe, 
+      -- fadeWindowsLogHook myFadeHook <+>
+        logHook            = logHook' myStatusBarPipe, 
         startupHook        = myStartupHook
     }
 -- }}}
