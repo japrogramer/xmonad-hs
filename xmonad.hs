@@ -17,6 +17,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName    -- needed to work around buggy java
 import XMonad.Hooks.EwmhDesktops -- needed to work around buggy java
+import XMonad.Hooks.FadeWindows
 
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
@@ -39,6 +40,7 @@ import XMonad.Prompt.Ssh
 import XMonad.Util.EZConfig
 import XMonad.Util.SpawnOnce
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
+import XMonad.Util.WindowProperties (getProp32s)
 
 import Data.Monoid
 import Data.Char
@@ -164,6 +166,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. mod3Mask , xK_Return), spawn $ XMonad.terminal conf)
     -- Ldmenu
     , ((modm              , xK_p     ), spawn ("dmenu_run " ++ argumenu ))
+    -- Ldmenu
+    , ((modm              , xK_y     ), spawn ("transset .5"))
     -- Ltime
     , ((modm .|. mod3Mask , xK_t     ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  )
     -- Lranger
@@ -179,7 +183,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Lfirefox
     , ((modm .|. mod3Mask , xK_f     ) , spawn "firefox"               )
     -- Lpidgin
-    , ((modm .|. mod3Mask , xK_f     ) , spawn "pidgin"                )
+    , ((modm .|. mod3Mask , xK_p     ) , spawn "pidgin"                )
     -- Lnautalius
     , ((modm .|. mod3Mask , xK_n     ) , spawn "nautilus --no-desktop" )
    -- close focused window
@@ -316,7 +320,7 @@ myLayout = avoidStruts                                   $
                                    withIM (0.17) (Role "gimp-dock") Full
                     tiled        = smartBorders (ResizableTall nmaster delta ratio [])
                     full         = noBorders Full
-                    pidginLayout = withIM (1/ratio) (Role "buddy_list") Grid
+                    pidginLayout = withIM (15/100) (Role "buddy_list") Grid
 
                     nmaster      = 1
                     delta        = 3/100
@@ -337,15 +341,15 @@ myManageHook = composeAll . concat $
     , [title =? t --> doFloat | t <- myTFloats]
     , [resource =? r --> doFloat | r <- myRFloats]
     , [resource =? i --> doIgnore | i <- myIgnores]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!0) | x <- my1Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!1) | x <- my2Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!2) | x <- my3Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift (myWorkspaces!!3) | x <- my4Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!4) | x <- my5Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!5) | x <- my6Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!6) | x <- my7Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!7) | x <- my8Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo (myWorkspaces!!8) | x <- my9Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!0 ) | x <- my1Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!1 ) | x <- my2Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!2 ) | x <- my3Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!3 ) | x <- my4Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!4 ) | x <- my5Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!5 ) | x <- my6Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!6 ) | x <- my7Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!7 ) | x <- my8Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!8 ) | x <- my9Shifts]
     ]
         where
             doShiftAndGo = doF . liftM2 (.) W.greedyView W.shift
@@ -364,11 +368,38 @@ myManageHook = composeAll . concat $
             my9Shifts = []
 -- }}}
 ------------------------------------------------------------------------
+-- fadehook {{{
+myFadeHook = composeAll [isUnfocused --> transparency 0.2,
+                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DOCK        " --> transparency 0.0,
+                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_TOOLBAR     " --> transparency 0.0,
+                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_MENU        " --> transparency 0.0,
+                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_UTILITY     " --> transparency 0.0,
+                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_SPLASH      " --> transparency 0.0,
+                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DIALOG      " --> transparency 0.0,
+                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_NORMAL      " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_STICKY            " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_VERT    " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_HORZ    " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SHADED            " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_TASKBAR      " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_PAGER        " --> transparency 0.0,
+                         isFullscreen                                                              --> transparency 0.9,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_FULLSCREEN        " --> transparency 0.9,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_HIDDEN            " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_ABOVE             " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_BELOW             " --> transparency 0.0,
+                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_DEMANDS_ATTENTION " --> transparency 0.0,
+                         transparency 0.2
+                        ]
+-- }}}
+------------------------------------------------------------------------
 -- Event handling {{{
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
-myEventHook = fullscreenEventHook <+> docksEventHook
+myEventHook = fullscreenEventHook <+> docksEventHook <+> fadeWindowsEventHook
 -- }}}
 ------------------------------------------------------------------------
 -- Status bars and logging {{{
@@ -381,10 +412,12 @@ logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- Startup hook {{{
 myStartupHook :: X ()
 myStartupHook = do
-                spawnOnce "gnome-settings-daemon"
-                spawnOnce "nm-applet"
-                --spawnOnce "xsetroot -cursor_name plus -solid '#2e3436'"
-                spawnOnce "xloadimage -onroot -fullscreen /usr/share/backgrounds/Mount_Snowdon,_Wales_by_Adam_Vellender.jpg"
+                spawnOnce   " gnome-settings-daemon                                                                            "
+                spawnOnce   " nm-applet                                                                                        "
+                --spawnOnce " xsetroot -cursor_name plus -solid '#2e3436'                                                      "
+                --spawnOnce " sh -c /home/japrogramer/git-t/compton   -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6          "
+                spawnOnce   " sh -c './home/japrogramer/git-t/compton'                                                         "
+                spawnOnce   " xloadimage -onroot -fullscreen /usr/share/backgrounds/Mount_Snowdon,_Wales_by_Adam_Vellender.jpg "
 -- }}}
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.{{{
@@ -409,7 +442,7 @@ main = do
         layoutHook         = myLayout,
         manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
-        logHook            = logHook' myStatusBarPipe, 
+        logHook            = fadeWindowsLogHook myFadeHook <+> logHook' myStatusBarPipe, 
         startupHook        = myStartupHook
     }
 -- }}}
