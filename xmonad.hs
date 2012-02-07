@@ -168,6 +168,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_p     ), spawn ("dmenu_run " ++ argumenu ))
     -- Ldmenu
     , ((modm              , xK_y     ), spawn ("transset .5"))
+    -- LRcomp
+    , ((modm              , xK_F9    ), spawn ("killall compton;sleep 1;compton"))
     -- Ltime
     , ((modm .|. mod3Mask , xK_t     ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  )
     -- Lranger
@@ -416,7 +418,7 @@ myStartupHook = do
                 spawnOnce   " nm-applet                                                                                        "
                 --spawnOnce " xsetroot -cursor_name plus -solid '#2e3436'                                                      "
                 --spawnOnce " sh -c /home/japrogramer/git-t/compton   -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6          "
-                spawnOnce   " sh -c './home/japrogramer/git-t/compton'                                                         "
+                spawnOnce   " compton                                                                                          "
                 spawnOnce   " xloadimage -onroot -fullscreen /usr/share/backgrounds/Mount_Snowdon,_Wales_by_Adam_Vellender.jpg "
 -- }}}
 ------------------------------------------------------------------------
