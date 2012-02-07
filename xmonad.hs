@@ -163,13 +163,13 @@ argumenu = "-b -nb '#2e3436' -nf '#736AFF' -sb '#A30EFF' -sf '#736AFF' -fn '-*-t
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
  
     -- Lterminal
-    [ ((modm .|. mod3Mask , xK_Return), spawn $ XMonad.terminal conf)
+    [ ((modm .|. mod3Mask , xK_Return ) , spawn $ XMonad.terminal conf             )
     -- Ldmenu
-    , ((modm              , xK_p     ), spawn ("dmenu_run " ++ argumenu ))
+    , ((modm              , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  )
     -- Ldmenu
-    , ((modm              , xK_y     ), spawn ("transset .5"))
+    , ((modm              , xK_y      ) , spawn ("transset .5"                     )  )
     -- LRcomp
-    , ((modm              , xK_F9    ), spawn ("killall compton;sleep 1;compton"))
+    , ((modm              , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  )
     -- Ltime
     , ((modm .|. mod3Mask , xK_t     ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  )
     -- Lranger
@@ -249,10 +249,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask                , xK_l ), sendMessage (MoveRight     10))
     , ((modm .|. shiftMask                , xK_j ), sendMessage (MoveDown      10))
     , ((modm .|. shiftMask                , xK_k ), sendMessage (MoveUp        10))
-    , ((modm                 .|. mod3Mask , xK_h ), sendMessage (IncreaseLeft  10))
-    , ((modm                 .|. mod3Mask , xK_l ), sendMessage (IncreaseRight 10))
-    , ((modm                 .|. mod3Mask , xK_j ), sendMessage (IncreaseDown  10))
-    , ((modm                 .|. mod3Mask , xK_k ), sendMessage (IncreaseUp    10))
+    , ((modm                 .|. controlMask , xK_h ), sendMessage (IncreaseLeft  10))
+    , ((modm                 .|. controlMask , xK_l ), sendMessage (IncreaseRight 10))
+    , ((modm                 .|. controlMask , xK_j ), sendMessage (IncreaseDown  10))
+    , ((modm                 .|. controlMask , xK_k ), sendMessage (IncreaseUp    10))
     , ((modm .|. shiftMask   .|. mod3Mask , xK_h ), sendMessage (DecreaseLeft  10))
     , ((modm .|. shiftMask   .|. mod3Mask , xK_l ), sendMessage (DecreaseRight 10))
     , ((modm .|. shiftMask   .|. mod3Mask , xK_j ), sendMessage (DecreaseDown  10))
@@ -371,29 +371,30 @@ myManageHook = composeAll . concat $
 -- }}}
 ------------------------------------------------------------------------
 -- fadehook {{{
-myFadeHook = composeAll [isUnfocused --> transparency 0.2,
-                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DOCK        " --> transparency 0.0,
-                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_TOOLBAR     " --> transparency 0.0,
-                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_MENU        " --> transparency 0.0,
-                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_UTILITY     " --> transparency 0.0,
-                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_SPLASH      " --> transparency 0.0,
-                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DIALOG      " --> transparency 0.0,
-                         isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_NORMAL      " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_STICKY            " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_VERT    " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_HORZ    " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SHADED            " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_TASKBAR      " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_PAGER        " --> transparency 0.0,
-                         isFullscreen                                                              --> transparency 0.9,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_FULLSCREEN        " --> transparency 0.9,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_HIDDEN            " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_ABOVE             " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_BELOW             " --> transparency 0.0,
-                         isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_DEMANDS_ATTENTION " --> transparency 0.0,
-                         transparency 0.2
+myFadeHook = composeAll [isUnfocused  --> transparency 0.3,
+                         --isFullscreen --> transparency 0.0,
+                         --isInProperty   " WM_WINDOW_ROLE      "  " browser                         " /=? False --> transparency 0.0,
+                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DOCK        " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_TOOLBAR     " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_MENU        " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_UTILITY     " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_SPLASH      " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DIALOG      " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_NORMAL      " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_STICKY            " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_VERT    " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_HORZ    " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_SHADED            " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_TASKBAR      " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_PAGER        " --> transparency 0.0,
+                         --isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_FULLSCREEN        " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_HIDDEN            " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_ABOVE             " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_BELOW             " --> transparency 0.0,
+                         --isInProperty   " _NET_WM_STATE       "  " _NET_WM_STATE_DEMANDS_ATTENTION " --> transparency 0.0,
+                         transparency 0.025
                         ]
 -- }}}
 ------------------------------------------------------------------------
