@@ -167,90 +167,90 @@ argumenu = "-b -nb '#2e3436' -nf '#736AFF' -sb '#A30EFF' -sf '#736AFF' -fn '-*-t
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
  
     -- Lterminal
-    [ ((modm .|. mod3Mask , xK_Return ) , spawn $ XMonad.terminal conf             )
+    [ ((modm .|. mod3Mask    , xK_Return ) , spawn $ XMonad.terminal conf             )
     -- Ldmenu
-    , ((modm              , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  )
+    , ((modm                 , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  )
     -- Ldtransperancy
-    , ((modm              , xK_minus  ) , spawn ("transset-df -a --dec .1"         )  )
+    , ((modm                 , xK_minus  ) , spawn ("transset-df -a --dec .1"         )  )
     -- Ldtransperancy
-    , ((modm              , xK_equal  ) , spawn ("transset-df -a --inc .1"         )  )
+    , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .1"         )  )
     -- Ldtransperancy
-    , ((modm              , xK_0      ) , spawn ("transset-df -a -t "              )  )
+    , ((modm                 , xK_0      ) , spawn ("transset-df -a -t "              )  )
     -- LRcomp
-    , ((modm              , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  )
+    , ((modm                 , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  )
     -- Ltime
-    , ((modm .|. mod3Mask , xK_t     ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  )
+    , ((modm .|. mod3Mask    , xK_t      ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  )
     -- Lranger
-    , ((modm              , xK_f     ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  )
+    , ((modm                 , xK_f      ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  )
     -- Lmocp
-    , ((modm .|. mod3Mask , xK_m     ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  )
+    , ((modm .|. mod3Mask    , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  )
     -- Lgvim
-    , ((modm .|. mod3Mask , xK_e     ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  )
+    , ((modm .|. mod3Mask    , xK_e      ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  )
     -- Lelinks
-    , ((modm .|. mod3Mask , xK_o     ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  )
+    , ((modm .|. mod3Mask    , xK_o      ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  )
     -- Lirssi
-    , ((modm .|. mod3Mask , xK_i     ) , raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'"                   ) (title =? "irssi"     )  )
+    , ((modm .|. mod3Mask    , xK_i      ) , raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'"                   ) (title =? "irssi"     )  )
     -- Lfirefox
-    , ((modm .|. mod3Mask , xK_f     ) , spawn "firefox"               )
+    , ((modm .|. mod3Mask    , xK_f      ) , spawn "firefox"               )
     -- Lpidgin
-    , ((modm .|. mod3Mask , xK_p     ) , spawn "pidgin"                )
+    , ((modm .|. mod3Mask    , xK_p      ) , spawn "pidgin"                )
     -- Lnautalius
-    , ((modm .|. mod3Mask , xK_n     ) , spawn "nautilus --no-desktop" )
+    , ((modm .|. mod3Mask    , xK_n      ) , spawn "nautilus --no-desktop" )
    -- close focused window
-    , ((modm .|. mod3Mask , xK_c     ), kill)
+    , ((modm .|. mod3Mask    , xK_c      ) , kill)
     -- prompt
-    , ((modm .|. mod3Mask , xK_g     ), windowPromptGoto myXPConfig          )
-    , ((modm .|. mod3Mask , xK_b     ), windowPromptBring myXPConfig         )
+    , ((modm .|. mod3Mask    , xK_g      ) , windowPromptGoto myXPConfig          )
+    , ((modm .|. mod3Mask    , xK_b      ) , windowPromptBring myXPConfig         )
     --  Reset the layouts on workspace
-    , ((modm .|. mod3Mask , xK_space ), setLayout $ XMonad.layoutHook conf   )
+    , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   )
     -- moc controls
     -- XF86AudioNext
-    ,  ((0            , 0x1008ff17), spawn "mocp -f")
+    , ((0                    , 0x1008ff17) , spawn "mocp -f")
     -- XF86AudioPrev
-    ,  ((0            , 0x1008ff16), spawn "mocp -r")
+    , ((0                    , 0x1008ff16) , spawn "mocp -r")
     -- XF86AudioPlay
-    ,  ((0            , 0x1008ff14), spawn "mocp -G")
+    , ((0                    , 0x1008ff14) , spawn "mocp -G")
     -- XF86AudioStop
-    --, ((0            , 0x1008ff15), spawn "")
+    , ((0                    , 0x1008ff15) , spawn "")
     -- Rotate Layout Algorithms
-    , ((modm              , xK_space ), sendMessage NextLayout               )
+    , ((modm                 , xK_space )  , sendMessage NextLayout               )
     -- Display grid select test
-    , ((modm              , xK_g     ), goToSelected $ gsconfig2 myColorizer )
+    , ((modm                 , xK_g     )  , goToSelected $ gsconfig2 myColorizer )
     -- Display runapps grid test
-    --, ((modm,               xK_s), spawnSelected gsconfig1 ["xterm","mocp","gvim"])
+    --, ((modm                 , xK_s)       , spawnSelected gsconfig1 ["xterm" , "mocp" , "gvim"])
     -- display grid select and go
-    --, ((modMask .|. mod3Mask, xK_g), gridselectWorkspace myGSConfig W.view) 
+    --, ((modMask .|. mod3Mask , xK_g)       , gridselectWorkspace myGSConfig W.view)
     -- Resize viewed windows to the correct size
-    , ((modm              , xK_n     ), refresh               )
+    , ((modm                 , xK_n     )  , refresh               )
     -- Move focus to the next window
-    , ((modm              , xK_Tab   ), windows W.focusDown   )
+    , ((modm                 , xK_Tab   )  , windows W.focusDown   )
     -- Move focus to the next window
-    , ((modm              , xK_j     ), windows W.focusDown   )
+    , ((modm                 , xK_j     )  , windows W.focusDown   )
     -- Move focus to the previous window
-    , ((modm              , xK_k     ), windows W.focusUp     )
+    , ((modm                 , xK_k     )  , windows W.focusUp     )
     -- Move focus to the master window
-    , ((modm              , xK_m     ), windows W.focusMaster )
+    , ((modm                 , xK_m     )  , windows W.focusMaster )
     -- Swap the focused window and the master window
-    , ((modm              , xK_Return), windows W.swapMaster  )
+    , ((modm                 , xK_Return)  , windows W.swapMaster  )
     -- Swap the focused window with the next window
-    , ((modm .|. mod3Mask , xK_j     ), windows W.swapDown    )
+    , ((modm .|. mod3Mask    , xK_j     )  , windows W.swapDown    )
     -- Swap the focused window with the previous window
-    , ((modm .|. mod3Mask , xK_k     ), windows W.swapUp      )
+    , ((modm .|. mod3Mask    , xK_k     )  , windows W.swapUp      )
     -- Shrink the master area
-    , ((modm              , xK_h     ), sendMessage Shrink    )
+    , ((modm                 , xK_h     )  , sendMessage Shrink    )
     -- Expand the master area
-    , ((modm              , xK_l     ), sendMessage Expand    )
+    , ((modm                 , xK_l     )  , sendMessage Expand    )
     -- Push window back into tiling
-    , ((modm              , xK_t     ), withFocused $ windows . W.sink )
+    , ((modm                 , xK_t     )  , withFocused $ windows . W.sink )
     -- Increment the number of windows in the master area
-    , ((modm              , xK_comma ), sendMessage (IncMasterN 1)     )
+    , ((modm                 , xK_comma )  , sendMessage (IncMasterN 1)     )
     -- Deincrement the number of windows in the master area
-    , ((modm              , xK_period), sendMessage (IncMasterN (-1))  )
+    , ((modm                 , xK_period)  , sendMessage (IncMasterN (-1))  )
     -- Toggle the status bar gap
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
     -- See also the statusBar function from Hooks.DynamicLog.
-    , ((modm              , xK_b     ), sendMessage ToggleStruts)
-    -- windowArranger settings 
+    , ((modm                 , xK_b     )  , sendMessage ToggleStruts)
+    -- windowArranger settings
     , ((modm .|. shiftMask                   , xK_o ) , sendMessage  Arrange          )
     , ((modm .|. shiftMask   .|. mod3Mask    , xK_o ) , sendMessage  DeArrange        )
     , ((modm .|. shiftMask                   , xK_h ) , sendMessage (MoveLeft      10 )  )
