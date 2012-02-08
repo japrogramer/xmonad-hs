@@ -54,21 +54,24 @@ import qualified Data.Map        as M
 ------------------------------------------------------------------------
 -- Urgency hint options extra {{{
 myUrgencyHook = withUrgencyHook dzenUrgencyHook
-    { args = ["-x", "0", "-y", "184", "-h", "16", "-w", "320", "-ta ", "r", "-expand", "l", "-fg", "" ++ myUrgentFGColor ++ "", "-bg", "" ++ myNormalBGColor ++ "", "-fn", "" ++ myFont ++ ""] }
+    { args = ["-x", "0", "-y", "184", "-h", "16", "-w", "320", "-ta ", "r", "-expand", "l", "-fg",
+              "" ++ myUrgentFGColor ++ "", "-bg", "" ++ myNormalBGColor ++ "", "-fn", "" ++ myFont ++ ""
+             ]
+    }
 -- }}}
 ------------------------------------------------------------------------
 -- Color, font and ico,path definitions: {{{
-myBitmapsPath = "/home/japrogramer/.xmonad/icons/"
-myFont = "-*-terminus-*-*-*-*-12*-*-*-*-*"
-myIconDir = "/home/japrogramer/.xmonad/icons"
-myNormalFGColor = "#A30EFF"
-myNormalBGColor = "#2e3436"
-myDzenFGColor = myNormalFGColor
-myDzenBGColor = myNormalBGColor
-myUrgentFGColor = "#0099ff"
-myUrgentBGColor = "#0077ff"
-myIconFGColor = "#777777"
-myIconBGColor = "#0f0f0f"
+myBitmapsPath    = "/home/japrogramer/.xmonad/icons/"
+myFont           = "-*-terminus-*-*-*-*-12*-*-*-*-*"
+myIconDir        = "/home/japrogramer/.xmonad/icons"
+myNormalFGColor  = "#A30EFF"
+myNormalBGColor  = "#2e3436"
+myDzenFGColor    = myNormalFGColor
+myDzenBGColor    = myNormalBGColor
+myUrgentFGColor  = "#0099ff"
+myUrgentBGColor  = "#0077ff"
+myIconFGColor    = "#777777"
+myIconBGColor    = "#0f0f0f"
 mySeperatorColor = "#555555"
 -- }}}
 ------------------------------------------------------------------------
@@ -77,12 +80,12 @@ myNormalBorderColor  =  myNormalBGColor
 myFocusedBorderColor =  myNormalFGColor 
 
 -- The preferred terminal program
-myTerminal      = "urxvt"
+myTerminal           = "urxvt"
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
-myFocusFollowsMouse = True
+myFocusFollowsMouse  = True
 -- Width of the window border in pixels.
-myBorderWidth   = 1
+myBorderWidth        = 1
 -- }}}
 ------------------------------------------------------------------------
 -- Dzen configs {{{
@@ -171,6 +174,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_minus  ) , spawn ("transset-df -a --dec .1"         )  )
     -- Ldtransperancy
     , ((modm              , xK_equal  ) , spawn ("transset-df -a --inc .1"         )  )
+    -- Ldtransperancy
+    , ((modm              , xK_0      ) , spawn ("transset-df -a -t "              )  )
     -- LRcomp
     , ((modm              , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  )
     -- Ltime
@@ -200,14 +205,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. mod3Mask , xK_space ), setLayout $ XMonad.layoutHook conf   )
     -- moc controls
     -- XF86AudioNext
-   ,  ((0            , 0x1008ff17), spawn "mocp -f")
-   -- XF86AudioPrev
-   ,  ((0            , 0x1008ff16), spawn "mocp -r")
-   -- XF86AudioPlay
-   ,  ((0            , 0x1008ff14), spawn "mocp -G")
-   -- XF86AudioStop
-   --, ((0            , 0x1008ff15), spawn "")
-     -- Rotate Layout Algorithms
+    ,  ((0            , 0x1008ff17), spawn "mocp -f")
+    -- XF86AudioPrev
+    ,  ((0            , 0x1008ff16), spawn "mocp -r")
+    -- XF86AudioPlay
+    ,  ((0            , 0x1008ff14), spawn "mocp -G")
+    -- XF86AudioStop
+    --, ((0            , 0x1008ff15), spawn "")
+    -- Rotate Layout Algorithms
     , ((modm              , xK_space ), sendMessage NextLayout               )
     -- Display grid select test
     , ((modm              , xK_g     ), goToSelected $ gsconfig2 myColorizer )
@@ -244,22 +249,22 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Toggle the status bar gap
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
     -- See also the statusBar function from Hooks.DynamicLog.
-    , ((modm              , xK_b ), sendMessage ToggleStruts)
+    , ((modm              , xK_b     ), sendMessage ToggleStruts)
     -- windowArranger settings 
-    , ((modm .|. shiftMask                , xK_o ), sendMessage  Arrange         )
-    , ((modm .|. shiftMask   .|. mod3Mask , xK_o ), sendMessage  DeArrange       )
-    , ((modm .|. shiftMask                , xK_h ), sendMessage (MoveLeft      10))
-    , ((modm .|. shiftMask                , xK_l ), sendMessage (MoveRight     10))
-    , ((modm .|. shiftMask                , xK_j ), sendMessage (MoveDown      10))
-    , ((modm .|. shiftMask                , xK_k ), sendMessage (MoveUp        10))
-    , ((modm                 .|. controlMask , xK_h ), sendMessage (IncreaseLeft  10))
-    , ((modm                 .|. controlMask , xK_l ), sendMessage (IncreaseRight 10))
-    , ((modm                 .|. controlMask , xK_j ), sendMessage (IncreaseDown  10))
-    , ((modm                 .|. controlMask , xK_k ), sendMessage (IncreaseUp    10))
-    , ((modm .|. shiftMask   .|. mod3Mask , xK_h ), sendMessage (DecreaseLeft  10))
-    , ((modm .|. shiftMask   .|. mod3Mask , xK_l ), sendMessage (DecreaseRight 10))
-    , ((modm .|. shiftMask   .|. mod3Mask , xK_j ), sendMessage (DecreaseDown  10))
-    , ((modm .|. shiftMask   .|. mod3Mask , xK_k ), sendMessage (DecreaseUp    10))
+    , ((modm .|. shiftMask                   , xK_o ) , sendMessage  Arrange          )
+    , ((modm .|. shiftMask   .|. mod3Mask    , xK_o ) , sendMessage  DeArrange        )
+    , ((modm .|. shiftMask                   , xK_h ) , sendMessage (MoveLeft      10 )  )
+    , ((modm .|. shiftMask                   , xK_l ) , sendMessage (MoveRight     10 )  )
+    , ((modm .|. shiftMask                   , xK_j ) , sendMessage (MoveDown      10 )  )
+    , ((modm .|. shiftMask                   , xK_k ) , sendMessage (MoveUp        10 )  )
+    , ((modm                 .|. controlMask , xK_h ) , sendMessage (IncreaseLeft  10 )  )
+    , ((modm                 .|. controlMask , xK_l ) , sendMessage (IncreaseRight 10 )  )
+    , ((modm                 .|. controlMask , xK_j ) , sendMessage (IncreaseDown  10 )  )
+    , ((modm                 .|. controlMask , xK_k ) , sendMessage (IncreaseUp    10 )  )
+    , ((modm .|. shiftMask   .|. mod3Mask    , xK_h ) , sendMessage (DecreaseLeft  10 )  )
+    , ((modm .|. shiftMask   .|. mod3Mask    , xK_l ) , sendMessage (DecreaseRight 10 )  )
+    , ((modm .|. shiftMask   .|. mod3Mask    , xK_j ) , sendMessage (DecreaseDown  10 )  )
+    , ((modm .|. shiftMask   .|. mod3Mask    , xK_k ) , sendMessage (DecreaseUp    10 )  )
     -- adjust for your monitor
     , ((modm .|. shiftMask   .|. mod3Mask , xK_semicolon ), sendMessage (SetGeometry $ Rectangle 250 200 730 400))
     -- Quit xmonad
@@ -340,12 +345,12 @@ myLayout = avoidStruts                                   $
 -- To match on the WM_NAME, you can use 'title' in the same way that
 -- 'className' and 'resource' are used below.
 myManageHook = composeAll . concat $
-    [ [className =? c --> doFloat | c <- myCFloats]
-    , [ isFullscreen --> doFullFloat ]
-    , [isDialog --> doFloat]
-    , [title =? t --> doFloat | t <- myTFloats]
-    , [resource =? r --> doFloat | r <- myRFloats]
-    , [resource =? i --> doIgnore | i <- myIgnores]
+    [ [className =? c --> doFloat       | c <- myCFloats ]
+    , [ isFullscreen  --> doFullFloat                    ]
+    , [isDialog       --> doFloat                        ]
+    , [title     =? t --> doFloat       | t <- myTFloats ]
+    , [resource  =? r --> doFloat       | r <- myRFloats ]
+    , [resource  =? i --> doIgnore      | i <- myIgnores ]
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!0 ) | x <- my1Shifts]
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!1 ) | x <- my2Shifts]
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!2 ) | x <- my3Shifts]
@@ -439,7 +444,6 @@ myEventHook = fullscreenEventHook <+> docksEventHook -- <+> fadeWindowsEventHook
 -- Perform an arbitrary action on each internal state change or X event.
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
---myLogHook  = return () 
 -- }}}
 ------------------------------------------------------------------------
 -- Startup hook {{{
@@ -448,7 +452,7 @@ myStartupHook = do
                 spawnOnce   " gnome-settings-daemon                                                                            "
                 spawnOnce   " nm-applet                                                                                        "
                 --spawnOnce " xsetroot -cursor_name plus -solid '#2e3436'                                                      "
-                spawnOnce   " compton                                                                                          "
+                spawnOnce   " compton -m 0.9                                                                                   "
                 --spawnOnce   " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6                                          "
                 spawnOnce   " xloadimage -onroot -fullscreen ~/Pictures/wallpaper/mono.jpg                                     "
 -- }}}
