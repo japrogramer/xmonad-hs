@@ -17,7 +17,8 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName    -- needed to work around buggy java
 import XMonad.Hooks.EwmhDesktops -- needed to work around buggy java
---import XMonad.Hooks.FadeWindows
+--import XMonad.Hooks.FadeInactive
+import XMonad.Hooks.FadeWindows
 
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
@@ -166,9 +167,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. mod3Mask , xK_Return ) , spawn $ XMonad.terminal conf             )
     -- Ldmenu
     , ((modm              , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  )
-    -- Ldmenu
+    -- Ldtransperancy
     , ((modm              , xK_minus  ) , spawn ("transset-df -a --dec .1"         )  )
-    -- Ldmenu
+    -- Ldtransperancy
     , ((modm              , xK_equal  ) , spawn ("transset-df -a --inc .1"         )  )
     -- LRcomp
     , ((modm              , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  )
@@ -341,7 +342,7 @@ myLayout = avoidStruts                                   $
 myManageHook = composeAll . concat $
     [ [className =? c --> doFloat | c <- myCFloats]
     , [ isFullscreen --> doFullFloat ]
---    , [isDialog --> doFloat]
+    , [isDialog --> doFloat]
     , [title =? t --> doFloat | t <- myTFloats]
     , [resource =? r --> doFloat | r <- myRFloats]
     , [resource =? i --> doIgnore | i <- myIgnores]
@@ -373,6 +374,31 @@ myManageHook = composeAll . concat $
 -- }}}
 ------------------------------------------------------------------------
 -- fadehook {{{
+
+myFadeHook = composeAll . concat $
+    [ [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.0 | x <- myIgnores  ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.1 | x <- my1Opacity ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.2 | x <- my2Opacity ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.3 | x <- my3Opacity ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.4 | x <- my4Opacity ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.5 | x <- my5Opacity ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.6 | x <- my6Opacity ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.7 | x <- my7Opacity ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.8 | x <- my8Opacity ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.9 | x <- my9Opacity ]
+    ]
+        where
+            myIgnores  = ["Firefox","Wine","Gimp"]
+            my1Opacity = ["Pidgin"]
+            my2Opacity = []
+            my3Opacity = []
+            my4Opacity = []
+            my5Opacity = []
+            my6Opacity = []
+            my7Opacity = []
+            my8Opacity = []
+            my9Opacity = []
+
 --myFadeHook = composeAll . concat $ 
 --                [[ isUnfocused  --> transparency 0.3                                                                 ] ,
                  --[ isFullscreen --> transparency 0.0                                                                        ] ,
@@ -449,7 +475,7 @@ main = do
         manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
       -- fadeWindowsLogHook myFadeHook <+>
-        logHook            = logHook' myStatusBarPipe, 
+        logHook            = logHook' myStatusBarPipe <+> fadeWindowsLogHook myFadeHook, 
         startupHook        = myStartupHook
     }
 -- }}}
