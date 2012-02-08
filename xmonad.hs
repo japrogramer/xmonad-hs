@@ -376,7 +376,10 @@ myManageHook = composeAll . concat $
 -- fadehook {{{
 
 myFadeHook = composeAll . concat $
-    [ [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.0 | x <- myIgnores  ]
+    [ 
+      [    isUnfocused                                         --> transparency 0.2                   ]
+    , [    isDialog                                            --> transparency 0.1                   ]
+    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.0 | x <- myIgnores  ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.1 | x <- my1Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.2 | x <- my2Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.3 | x <- my3Opacity ]
@@ -400,11 +403,9 @@ myFadeHook = composeAll . concat $
             my9Opacity = []
 
 --myFadeHook = composeAll . concat $ 
---                [[ isUnfocused  --> transparency 0.3                                                                 ] ,
-                 --[ isFullscreen --> transparency 0.0                                                                        ] ,
+--                [                 --[ isFullscreen --> transparency 0.0                                                                        ] ,
                  --[ isInProperty " WM_WINDOW_ROLE      "  " browser                         " /=? False --> transparency 0.0 ] ,
                  --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DOCK        " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_TOOLBAR     " --> transparency 0.0           ] ,
                  --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_MENU        " --> transparency 0.0           ] ,
                  --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_UTILITY     " --> transparency 0.0           ] ,
                  --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_SPLASH      " --> transparency 0.0           ] ,
