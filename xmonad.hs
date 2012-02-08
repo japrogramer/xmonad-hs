@@ -391,11 +391,11 @@ myFadeHook = composeAll . concat $
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.9 | x <- my9Opacity ]
     ]
         where
-            myIgnores  = ["Firefox","Wine","Gimp"]
+            myIgnores  = ["Firefox","Wine"]
             my1Opacity = ["Pidgin"]
             my2Opacity = []
             my3Opacity = []
-            my4Opacity = []
+            my4Opacity = ["Gimp"]
             my5Opacity = []
             my6Opacity = []
             my7Opacity = []
@@ -473,10 +473,10 @@ main = do
  
       -- hooks, layouts
         layoutHook         = myLayout,
-        manageHook         = manageDocks <+> myManageHook,
+        manageHook         = manageDocks <+> myManageHook <+> ( liftX  (fadeWindowsLogHook myFadeHook) >> idHook ),
         handleEventHook    = myEventHook,
       -- fadeWindowsLogHook myFadeHook <+>
-        logHook            = logHook' myStatusBarPipe <+> fadeWindowsLogHook myFadeHook, 
+        logHook            = logHook' myStatusBarPipe, -- <+> fadeWindowsLogHook myFadeHook,
         startupHook        = myStartupHook
     }
 -- }}}
