@@ -171,36 +171,37 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Ldmenu
     , ((modm                 , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  )
     -- Ldtransperancy
-    , ((modm                 , xK_minus  ) , spawn ("transset-df -a --dec .1"         )  )
+    , ((modm                 , xK_minus  ) , spawn ("transset-df -a --dec .05"        )  )
     -- Ldtransperancy
-    , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .1"         )  )
+    , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .05"        )  )
     -- Ldtransperancy
     , ((modm                 , xK_0      ) , spawn ("transset-df -a -t "              )  )
     -- LRcomp
     , ((modm                 , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  )
+    -- Lgvim
+    , ((modm .|. mod3Mask    , xK_e      ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  )
     -- Ltime
     , ((modm .|. mod3Mask    , xK_t      ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  )
     -- Lranger
     , ((modm                 , xK_f      ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  )
-    -- Lmocp
-    , ((modm .|. mod3Mask    , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  )
-    -- Lgvim
-    , ((modm .|. mod3Mask    , xK_e      ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  )
-    -- Lelinks
-    , ((modm .|. mod3Mask    , xK_o      ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  )
     -- Lirssi
     , ((modm .|. mod3Mask    , xK_i      ) , raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'"                   ) (title =? "irssi"     )  )
-    -- Lfirefox
-    , ((modm .|. mod3Mask    , xK_f      ) , spawn "firefox"               )
+    -- Lelinks
+    , ((modm .|. mod3Mask    , xK_o      ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  )
     -- Lpidgin
-    , ((modm .|. mod3Mask    , xK_p      ) , spawn "pidgin"                )
-    -- Lnautalius
-    , ((modm .|. mod3Mask    , xK_n      ) , spawn "nautilus --no-desktop" )
+    , ((modm .|. mod3Mask    , xK_p      ) , spawn "pidgin"                       )
+    -- Lfirefox
+    , ((modm .|. mod3Mask    , xK_f      ) , spawn "firefox"                      )
+    -- prompt
+    , ((modm .|. mod3Mask    , xK_g      ) , windowPromptGoto myXPConfig          )
    -- close focused window
     , ((modm .|. mod3Mask    , xK_c      ) , kill)
     -- prompt
-    , ((modm .|. mod3Mask    , xK_g      ) , windowPromptGoto myXPConfig          )
     , ((modm .|. mod3Mask    , xK_b      ) , windowPromptBring myXPConfig         )
+    -- Lnautalius
+    , ((modm .|. mod3Mask    , xK_n      ) , spawn "nautilus --no-desktop"        )
+    -- Lmocp
+    , ((modm .|. mod3Mask    , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  )
     --  Reset the layouts on workspace
     , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   )
     -- moc controls
@@ -211,7 +212,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- XF86AudioPlay
     , ((0                    , 0x1008ff14) , spawn "mocp -G")
     -- XF86AudioStop
-    , ((0                    , 0x1008ff15) , spawn "")
+    --, ((0                    , 0x1008ff15) , spawn ""       )
     -- Rotate Layout Algorithms
     , ((modm                 , xK_space )  , sendMessage NextLayout               )
     -- Display grid select test
@@ -384,6 +385,7 @@ myFadeHook = composeAll . concat $
     [ 
       [    isUnfocused                                         --> transparency 0.2                   ]
     , [    isDialog                                            --> transparency 0.1                   ]
+    , [    checkDock                                           --> transparency 0.2                   ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.0 | x <- myIgnores  ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.1 | x <- my1Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.2 | x <- my2Opacity ]
@@ -394,18 +396,23 @@ myFadeHook = composeAll . concat $
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.7 | x <- my7Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.8 | x <- my8Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.9 | x <- my9Opacity ]
+    --, [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency y   | (x,y) <- myXOpacity ]
     ]
         where
             myIgnores  = ["Firefox","Wine"]
             my1Opacity = ["Pidgin"]
-            my2Opacity = []
-            my3Opacity = []
-            my4Opacity = ["Gimp"]
+            my2Opacity = ["gimp-toolbox","Gimp"]
+            my3Opacity = ["mocp"]
+            my4Opacity = []
             my5Opacity = []
             my6Opacity = []
             my7Opacity = []
             my8Opacity = []
             my9Opacity = []
+            --myXOpacity = ( "vlc",0.1 )
+                --where
+                    --tforClass [ String ] -> [ Rational ]
+                    --tforClass τ = case 
 
 --myFadeHook = composeAll . concat $ 
 --                [                 --[ isFullscreen --> transparency 0.0                                                                        ] ,
@@ -437,7 +444,7 @@ myFadeHook = composeAll . concat $
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
-myEventHook = fullscreenEventHook <+> docksEventHook -- <+> fadeWindowsEventHook
+myEventHook = fullscreenEventHook <+> docksEventHook <+> fadeWindowsEventHook
 -- }}}
 ------------------------------------------------------------------------
 -- Status bars and logging {{{
