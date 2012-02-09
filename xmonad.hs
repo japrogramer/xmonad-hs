@@ -50,6 +50,9 @@ import Control.Monad (liftM2)
 import qualified XMonad.Layout.Magnifier as Mag
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
+import XMonad.Hooks.ScreenCorners
+--mark
+
 -- }}}
 ------------------------------------------------------------------------
 -- Urgency hint options extra {{{
@@ -220,6 +223,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Display runapps grid test
     --, ((modm                 , xK_s)       , spawnSelected gsconfig1 ["xterm" , "mocp" , "gvim"])
     -- display grid select and go
+    -- addScreenCorner SCUpperRight (goToSelected defaultGSConfig { gs_cellwidth = 200})
     --, ((modMask .|. mod3Mask , xK_g)       , gridselectWorkspace myGSConfig W.view)
     -- Resize viewed windows to the correct size
     , ((modm                 , xK_n     )  , refresh               )
@@ -444,7 +448,7 @@ myFadeHook = composeAll . concat $
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
-myEventHook = fullscreenEventHook <+> docksEventHook <+> fadeWindowsEventHook
+myEventHook = fullscreenEventHook <+> docksEventHook <+> fadeWindowsEventHook <+> screenCornerEventHook
 -- }}}
 ------------------------------------------------------------------------
 -- Status bars and logging {{{
@@ -462,6 +466,11 @@ myStartupHook = do
                 spawnOnce   " compton                                                                                          "
                 --spawnOnce   " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6                                          "
                 spawnOnce   " xloadimage -onroot -fullscreen ~/Pictures/wallpaper/mono.jpg                                     "
+
+                --mark
+                addScreenCorners [ (SCLowerLeft, prevWS)
+                                 , (SCUpperLeft, nextWS)
+                                 ]
 -- }}}
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.{{{
