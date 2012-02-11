@@ -240,6 +240,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm                 , xK_b     )  , sendMessage ToggleStruts)
     -- Restart xmonad
     , ((modm              , xK_q     ), spawn "killall conky dzen2; xmonad --recompile; xmonad --restart")
+    --exit 
+    , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
     ]
     ++
     -- mod-[1..9], Switch to workspace N
