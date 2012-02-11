@@ -9,16 +9,16 @@ import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?))
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Search
 import XMonad.Actions.Warp
-import XMonad.Actions.GridSelect -- grid selector test
+import XMonad.Actions.GridSelect 
 
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.SetWMName    -- needed to work around buggy java
-import XMonad.Hooks.EwmhDesktops -- needed to work around buggy java
---import XMonad.Hooks.FadeInactive
+import XMonad.Hooks.SetWMName
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeWindows
+import XMonad.Hooks.ScreenCorners
 
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
@@ -30,7 +30,6 @@ import XMonad.Layout.Named
 import XMonad.Layout.Grid
 import XMonad.Layout.Spacing
 import XMonad.Layout.Circle
-import XMonad.Layout.WindowArranger
 
 import XMonad.Prompt
 import XMonad.Prompt.AppLauncher as AL
@@ -50,8 +49,6 @@ import Control.Monad (liftM2)
 import qualified XMonad.Layout.Magnifier as Mag
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
-import XMonad.Hooks.ScreenCorners
---mark
 
 -- }}}
 ------------------------------------------------------------------------
@@ -82,18 +79,12 @@ mySeperatorColor = "#555555"
 myNormalBorderColor  =  myNormalBGColor 
 myFocusedBorderColor =  myNormalFGColor 
 
--- The preferred terminal program
 myTerminal           = "urxvt"
--- Whether focus follows the mouse pointer.
-myFocusFollowsMouse :: Bool
-myFocusFollowsMouse  = True
--- Width of the window border in pixels.
 myBorderWidth        = 1
 -- }}}
 ------------------------------------------------------------------------
 -- Dzen configs {{{
 myDzenEvents    = "-e 'button3=' "
--- dzen general options
 myDzenGenOpts   = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' " 
 -- Status Bar
 myWorkspaceBar  = "dzen2 -p -ta l -w 640 "
@@ -168,7 +159,6 @@ myModMask       = mod4Mask
 argumenu = "-b -nb '#2e3436' -nf '#736AFF' -sb '#A30EFF' -sf '#736AFF' -fn '-*-terminus-*-*-*-*-12*-*-*-*-*'"
 --
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
- 
     -- Lterminal
     [ ((modm .|. mod3Mask    , xK_Return ) , spawn $ XMonad.terminal conf             )
     -- Ldmenu
@@ -220,11 +210,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm                 , xK_space )  , sendMessage NextLayout               )
     -- Display grid select test
     , ((modm                 , xK_g     )  , goToSelected $ gsconfig2 myColorizer )
-    -- Display runapps grid test
-    --, ((modm                 , xK_s)       , spawnSelected gsconfig1 ["xterm" , "mocp" , "gvim"])
-    -- display grid select and go
-    -- addScreenCorner SCUpperRight (goToSelected defaultGSConfig { gs_cellwidth = 200})
-    --, ((modMask .|. mod3Mask , xK_g)       , gridselectWorkspace myGSConfig W.view)
     -- Resize viewed windows to the correct size
     , ((modm                 , xK_n     )  , refresh               )
     -- Move focus to the next window
@@ -252,28 +237,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Deincrement the number of windows in the master area
     , ((modm                 , xK_period)  , sendMessage (IncMasterN (-1))  )
     -- Toggle the status bar gap
-    -- Use this binding with avoidStruts from Hooks.ManageDocks.
-    -- See also the statusBar function from Hooks.DynamicLog.
     , ((modm                 , xK_b     )  , sendMessage ToggleStruts)
-    -- windowArranger settings
-    , ((modm .|. shiftMask                   , xK_o ) , sendMessage  Arrange          )
-    , ((modm .|. shiftMask   .|. mod3Mask    , xK_o ) , sendMessage  DeArrange        )
-    , ((modm .|. shiftMask                   , xK_h ) , sendMessage (MoveLeft      10 )  )
-    , ((modm .|. shiftMask                   , xK_l ) , sendMessage (MoveRight     10 )  )
-    , ((modm .|. shiftMask                   , xK_j ) , sendMessage (MoveDown      10 )  )
-    , ((modm .|. shiftMask                   , xK_k ) , sendMessage (MoveUp        10 )  )
-    , ((modm                 .|. controlMask , xK_h ) , sendMessage (IncreaseLeft  10 )  )
-    , ((modm                 .|. controlMask , xK_l ) , sendMessage (IncreaseRight 10 )  )
-    , ((modm                 .|. controlMask , xK_j ) , sendMessage (IncreaseDown  10 )  )
-    , ((modm                 .|. controlMask , xK_k ) , sendMessage (IncreaseUp    10 )  )
-    , ((modm .|. shiftMask   .|. mod3Mask    , xK_h ) , sendMessage (DecreaseLeft  10 )  )
-    , ((modm .|. shiftMask   .|. mod3Mask    , xK_l ) , sendMessage (DecreaseRight 10 )  )
-    , ((modm .|. shiftMask   .|. mod3Mask    , xK_j ) , sendMessage (DecreaseDown  10 )  )
-    , ((modm .|. shiftMask   .|. mod3Mask    , xK_k ) , sendMessage (DecreaseUp    10 )  )
-    -- adjust for your monitor
-    , ((modm .|. shiftMask   .|. mod3Mask , xK_semicolon ), sendMessage (SetGeometry $ Rectangle 250 200 730 400))
-    -- Quit xmonad
-    , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
     -- Restart xmonad
     , ((modm              , xK_q     ), spawn "killall conky dzen2; xmonad --recompile; xmonad --restart")
     ]
@@ -327,7 +291,7 @@ myColorizer = colorRangeFromClassName
 myLayout = avoidStruts                                   $
            onWorkspace (myWorkspaces !! 6 ) gimpLayout   $
            onWorkspace (myWorkspaces !! 4 ) pidginLayout $
-           windowArrangeAll myLayouts
+           myLayouts
                 where
                     myLayouts    = tiled ||| Mirror tiled ||| Circle ||| Full
                     gimpLayout   = withIM (0.13) (Role "gimp-toolbox") $
@@ -346,7 +310,6 @@ myLayout = avoidStruts                                   $
 -- Window rules: {{{
 -- To find the property name associated with a program, use
 -- > xprop | grep WM_CLASS
--- and click on the client you're interested in.
 -- To match on the WM_NAME, you can use 'title' in the same way that
 -- 'className' and 'resource' are used below.
 myManageHook = composeAll . concat $
@@ -384,7 +347,6 @@ myManageHook = composeAll . concat $
 -- }}}
 ------------------------------------------------------------------------
 -- fadehook {{{
-
 myFadeHook = composeAll . concat $
     [ 
       [    isUnfocused                                         --> transparency 0.2                   ]
@@ -400,7 +362,6 @@ myFadeHook = composeAll . concat $
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.7 | x <- my7Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.8 | x <- my8Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.9 | x <- my9Opacity ]
-    --, [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency y   | (x,y) <- myXOpacity ]
     ]
         where
             myIgnores  = ["Firefox","Wine"]
@@ -413,47 +374,17 @@ myFadeHook = composeAll . concat $
             my7Opacity = []
             my8Opacity = []
             my9Opacity = []
-            --myXOpacity = ( "vlc",0.1 )
-                --where
-                    --tforClass [ String ] -> [ Rational ]
-                    --tforClass τ = case 
 
---myFadeHook = composeAll . concat $ 
---                [                 --[ isFullscreen --> transparency 0.0                                                                        ] ,
-                 --[ isInProperty " WM_WINDOW_ROLE      "  " browser                         " /=? False --> transparency 0.0 ] ,
-                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DOCK        " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_MENU        " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_UTILITY     " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_SPLASH      " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_DIALOG      " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_WINDOW_TYPE "  " _NET_WM_WINDOW_TYPE_NORMAL      " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_STICKY            " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MODAL             " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_VERT    " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_MAXIMIZED_HORZ    " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SHADED            " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_TASKBAR      " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_SKIP_PAGER        " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_FULLSCREEN        " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_HIDDEN            " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_ABOVE             " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_BELOW             " --> transparency 0.0           ] ,
-                 --[ isInProperty " _NET_WM_STATE       "  " _NET_WM_STATE_DEMANDS_ATTENTION " --> transparency 0.0           ] ,
- --               [ transparency 0.025                                                                                         ]
- --               ]
 -- }}}
 ------------------------------------------------------------------------
 -- Event handling {{{
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
-myEventHook = fullscreenEventHook <+> docksEventHook <+> fadeWindowsEventHook <+> screenCornerEventHook
+myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook
 -- }}}
 ------------------------------------------------------------------------
 -- Status bars and logging {{{
--- Perform an arbitrary action on each internal state change or X event.
--- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- }}}
 ------------------------------------------------------------------------
@@ -466,10 +397,8 @@ myStartupHook = do
                 spawnOnce   " compton                                                                                          "
                 --spawnOnce   " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6                                          "
                 spawnOnce   " xloadimage -onroot -fullscreen ~/Pictures/wallpaper/mono.jpg                                     "
-
-                --mark
-                addScreenCorners [ (SCLowerLeft, prevWS)
-                                 , (SCUpperLeft, nextWS)
+                addScreenCorners [ (SCUpperRight,nextWS)
+                                 , (SCUpperLeft, prevWS)
                                  ]
 -- }}}
 ------------------------------------------------------------------------
@@ -478,25 +407,22 @@ main = do
     myStatusBarPipe <- spawnPipe myWorkspaceBar
     conckyBar <- spawnPipe ( "conky -c ~/.xmonad/conkyfd | " ++ myConkyBar)
     xmonad $ myUrgencyHook $ defaultConfig {
-      -- simple stuff
+
         terminal           = myTerminal,
-        focusFollowsMouse  = myFocusFollowsMouse,
+        focusFollowsMouse  = True,
         borderWidth        = myBorderWidth,
         modMask            = myModMask,
         workspaces         = myWorkspaces,
         normalBorderColor  = myNormalBorderColor,
         focusedBorderColor = myFocusedBorderColor,
  
-      -- key bindings
         keys               = myKeys,
         mouseBindings      = myMouseBindings,
  
-      -- hooks, layouts
         layoutHook         = myLayout,
         manageHook         = manageDocks <+> myManageHook <+> ( liftX  (fadeWindowsLogHook myFadeHook) >> idHook ),
         handleEventHook    = myEventHook,
-      -- fadeWindowsLogHook myFadeHook <+>
-        logHook            = logHook' myStatusBarPipe, -- <+> fadeWindowsLogHook myFadeHook,
+        logHook            = logHook' myStatusBarPipe,
         startupHook        = myStartupHook
     }
 -- }}}
