@@ -9,7 +9,6 @@ font -*-terminus-*-*-*-*-12-*-*-*-*-*-iso8859-*
 #^fg()^i(/home/japrogramer/.xmonad/icons/wifi_02.xbm) 
 
 TEXT
-^fg(\#AE3FFF) \
 ${if_running mocp} ^fg()^i(/home/japrogramer/.xmonad/icons/play.xbm) ${exec mocp -Q %song | colrm 10 } ${endif} \
 ${if_up wlan0}^i(/home/japrogramer/.xmonad/icons/net_up_03.xbm) ^fg()${upspeed wlan0} ^i(/home/japrogramer/.xmonad/icons/net_down_03.xbm) ^fg()${downspeed wlan0}${endif} \
 ^i(/home/japrogramer/.xmonad/icons/cpu.xbm) ${cpu cpu0}% \
