@@ -157,7 +157,7 @@ myModMask       = mod4Mask
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.{{{
 --
-argumenu = "-b -nb '#2e3436' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '-*-terminus-*-*-*-*-12*-*-*-*-*'"
+argumenu = "-b -nb '"++ myNormalBGColor ++"' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '"++ myFont ++"'"
 --
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Lterminal
