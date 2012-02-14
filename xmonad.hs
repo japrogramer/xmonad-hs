@@ -61,6 +61,7 @@ myUrgencyHook = withUrgencyHook dzenUrgencyHook
 -- }}}
 ------------------------------------------------------------------------
 -- Color, font and ico,path definitions: {{{
+myWallpaper      = "~/Pictures/wallpaper/mono.jpg"
 myBitmapsPath    = "/home/japrogramer/.xmonad/icons/"
 myFont           = "-*-terminus-*-*-*-*-12*-*-*-*-*"
 myIconDir        = "/home/japrogramer/.xmonad/icons"
@@ -156,7 +157,7 @@ myModMask       = mod4Mask
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.{{{
 --
-argumenu = "-b -nb '#2e3436' -nf '#736AFF' -sb '#A30EFF' -sf '#736AFF' -fn '-*-terminus-*-*-*-*-12*-*-*-*-*'"
+argumenu = "-b -nb '#2e3436' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '-*-terminus-*-*-*-*-12*-*-*-*-*'"
 --
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Lterminal
@@ -397,8 +398,8 @@ myStartupHook = do
                 spawnOnce   " nm-applet                                                                                        "
                 --spawnOnce " xsetroot -cursor_name plus -solid '#2e3436'                                                      "
                 spawnOnce   " compton                                                                                          "
-                --spawnOnce   " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6                                          "
-                spawnOnce   " xloadimage -onroot -fullscreen ~/Pictures/wallpaper/mono.jpg                                     "
+                --spawnOnce " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6                                          "
+                spawnOnce   ( " xloadimage -onroot -fullscreen " ++ myWallpaper )
                 addScreenCorners [ (SCUpperRight,nextWS)
                                  , (SCUpperLeft, prevWS)
                                  ]
