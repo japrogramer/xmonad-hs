@@ -124,7 +124,6 @@ myDzenPP        = defaultPP {
 myWorkspaces         :: [WorkspaceId]
 myWorkspaces         =  clickable . (map dzenEscape) $ ["λ","¥","ψ","δ","Σ","ζ","η","θ","¤"]
                                 where clickable l     = [  ws  | (i,ws) <- zip [1..] l, let n = if i == 10 then i else 0 ]
---where clickable l     = [ "^ca(1,xdotool key super+" ++ show (n) ++ ")" ++ ws ++ "^ca()" | (i,ws) <- zip [1..] l, let n = if i == 10 then i else 0 ]
 -- }}}
 ------------------------------------------------------------------------
 --myxpconfig {{{
@@ -165,42 +164,41 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .05"        )  ) -- Ltransperancy
     , ((modm                 , xK_0      ) , spawn ("transset-df -a -t "              )  ) -- Ltransperancy
     , ((modm                 , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  ) -- Lcompton
+    , ((modm                 , xK_f      ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  ) -- Lranger
     , ((modm .|. mod3Mask    , xK_e      ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  ) -- Lgvim
     , ((modm .|. mod3Mask    , xK_t      ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  ) -- Ltime
-    , ((modm                 , xK_f      ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  ) -- Lranger
     , ((modm .|. mod3Mask    , xK_i      ) , raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'"                   ) (title =? "irssi"     )  ) -- Lirssi
     , ((modm .|. mod3Mask    , xK_o      ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  ) -- Lelinks
     , ((modm .|. mod3Mask    , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  ) -- Lmocp
-    , ((modm .|. mod3Mask    , xK_p ) , spawn "pidgin"                ) -- Lpidgin
-    , ((modm .|. mod3Mask    , xK_f ) , spawn "firefox"               ) -- Lfirefox
-    , ((modm .|. mod3Mask    , xK_g ) , windowPromptGoto myXPConfig   ) -- prompt
-    , ((modm .|. mod3Mask    , xK_c ) , kill                          ) -- close focused window
-    , ((modm .|. mod3Mask    , xK_b ) , windowPromptBring myXPConfig  ) -- prompt
-    , ((modm .|. mod3Mask    , xK_n ) , spawn "nautilus --no-desktop" ) -- Lnautalius
-    -- moc controls
-    , ((0                    , 0x1008ff17) , spawn "mocp -f") -- XF86AudioNext
-    , ((0                    , 0x1008ff16) , spawn "mocp -r") -- XF86AudioPrev
-    , ((0                    , 0x1008ff14) , spawn "mocp -G") -- XF86AudioPlay
-    --, ((0                    , 0x1008ff15) , spawn ""       ) -- XF86AudioStop
+    , ((modm .|. mod3Mask    , xK_p      ) , spawn "pidgin"                ) -- Lpidgin
+    , ((modm .|. mod3Mask    , xK_f      ) , spawn "firefox"               ) -- Lfirefox
+    , ((modm .|. mod3Mask    , xK_g      ) , windowPromptGoto myXPConfig   ) -- prompt
+    , ((modm .|. mod3Mask    , xK_c      ) , kill                          ) -- close focused window
+    , ((modm .|. mod3Mask    , xK_b      ) , windowPromptBring myXPConfig  ) -- prompt
+    , ((modm .|. mod3Mask    , xK_n      ) , spawn "nautilus --no-desktop" ) -- Lnautalius
+    , ((modm .|. mod3Mask    , xK_j      ) , windows W.swapDown     ) -- Swap the focused window with the next window
+    , ((modm .|. mod3Mask    , xK_k      ) , windows W.swapUp       ) -- Swap the focused window with the previous window
     , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   ) --  Reset the layouts on workspace
-    , ((modm                 , xK_space )  , sendMessage NextLayout               ) -- Rotate Layout Algorithms
-    , ((modm                 , xK_g     )  , goToSelected $ gsconfig2 myColorizer ) -- Display grid select test
-    , ((modm                 , xK_n     )  , refresh               ) -- Resize viewed windows to the correct size
-    , ((modm                 , xK_Tab   )  , windows W.focusDown   ) -- Move focus to the next window
-    , ((modm                 , xK_j     )  , windows W.focusDown   ) -- Move focus to the next window
-    , ((modm                 , xK_k     )  , windows W.focusUp     ) -- Move focus to the previous window
-    , ((modm                 , xK_m     )  , windows W.focusMaster ) -- Move focus to the master window
-    , ((modm                 , xK_Return)  , windows W.swapMaster  ) -- Swap the focused window and the master window
-    , ((modm .|. mod3Mask    , xK_j     )  , windows W.swapDown    ) -- Swap the focused window with the next window
-    , ((modm .|. mod3Mask    , xK_k     )  , windows W.swapUp      ) -- Swap the focused window with the previous window
-    , ((modm                 , xK_h     )  , sendMessage Shrink    ) -- Shrink the master area
-    , ((modm                 , xK_l     )  , sendMessage Expand    ) -- Expand the master area
-    , ((modm                 , xK_t     )  , withFocused $ windows . W.sink ) -- Push window back into tiling
-    , ((modm                 , xK_comma )  , sendMessage (IncMasterN 1)     ) -- Increment the number of windows in the master area
-    , ((modm                 , xK_period)  , sendMessage (IncMasterN (-1))  ) -- Deincrement the number of windows in the master area
-    , ((modm                 , xK_b     )  , sendMessage ToggleStruts       ) -- Toggle the status bar gap
-    , ((modm              , xK_q     ), spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
-    , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess)) --exit
+    , ((modm                 , xK_g      ) , goToSelected $ gsconfig2 myColorizer ) -- Display grid select test
+    , ((modm                 , xK_j      ) , windows W.focusDown    ) -- Move focus to the next window
+    , ((modm                 , xK_k      ) , windows W.focusUp      ) -- Move focus to the previous window
+    , ((modm                 , xK_n      ) , refresh                ) -- Resize viewed windows to the correct size
+    , ((modm                 , xK_space  ) , sendMessage NextLayout ) -- Rotate Layout Algorithms
+    , ((modm                 , xK_m      ) , windows W.focusMaster  ) -- Move focus to the master window
+    , ((modm                 , xK_Tab    ) , windows W.focusDown    ) -- Move focus to the next window
+    , ((modm                 , xK_Return ) , windows W.swapMaster   ) -- Swap the focused window and the master window
+    , ((0                    , 0x1008ff17) , spawn "mocp -f"    ) -- XF86AudioNext mocp Next
+    , ((0                    , 0x1008ff16) , spawn "mocp -r"    ) -- XF86AudioPrev mocp Previous
+    , ((0                    , 0x1008ff14) , spawn "mocp -G"    ) -- XF86AudioPlay mocp Toggle
+    --, ((0                    , 0x1008ff15) , spawn ""         ) -- XF86AudioStop mocp Stop
+    , ((modm                 , xK_h      ) , sendMessage Shrink ) -- Shrink the master area
+    , ((modm                 , xK_l      ) , sendMessage Expand ) -- Expand the master area
+    , ((modm                 , xK_t      ) , withFocused $ windows . W.sink ) -- Push window back into tiling
+    , ((modm                 , xK_comma  ) , sendMessage (IncMasterN 1)     ) -- Increment the number of windows in the master area
+    , ((modm                 , xK_period ) , sendMessage (IncMasterN (-1))  ) -- Deincrement the number of windows in the master area
+    , ((modm                 , xK_b      ) , sendMessage ToggleStruts       ) -- Toggle the status bar gap
+    , ((modm              , xK_q         ) , spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
+    , ((modm .|. shiftMask, xK_q         ) , io $ exitWith ExitSuccess      ) --exit
     ]
     ++
     -- mod-[1..9], Switch to workspace N
