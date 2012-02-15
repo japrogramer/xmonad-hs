@@ -95,8 +95,8 @@ myDzenPP        = defaultPP {
                                                       "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
                                                       "Full"                 -> wrapBitmap "full.xbm"
                                                       "Circle"               -> wrapBitmap "scorpio.xbm"
-                                                      "IM ResizableTall"     -> wrapBitmap "pacman.xbm"
-                                                      "IM Grid"              -> "^p(5)#^p(5)"
+                                                      "IM ReflectX IM Full"  -> wrapBitmap "pacman.xbm"
+                                                      "IM ResizableTall"     -> "^p(5)#^p(5)"
                                                       _                      -> pad x
                                                   )
                             }
@@ -178,7 +178,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0                    , 0x1008ff17) , spawn "mocp -f"    ) -- XF86AudioNext mocp Next
     , ((0                    , 0x1008ff16) , spawn "mocp -r"    ) -- XF86AudioPrev mocp Previous
     , ((0                    , 0x1008ff14) , spawn "mocp -G"    ) -- XF86AudioPlay mocp Toggle
-    --, ((0                    , 0x1008ff15) , spawn ""         ) -- XF86AudioStop mocp Stop
+    --((0                    , 0x1008ff15) , spawn ""           ) -- XF86AudioStop mocp Stop
     , ((modm                 , xK_h      ) , sendMessage Shrink ) -- Shrink the master area
     , ((modm                 , xK_l      ) , sendMessage Expand ) -- Expand the master area
     , ((modm                 , xK_t      ) , withFocused $ windows . W.sink ) -- Push window back into tiling
@@ -354,7 +354,6 @@ main = do
     myStatusBarPipe <- spawnPipe myWorkspaceBar
     conckyBar <- spawnPipe ( "conky -c ~/.xmonad/conkyfd | " ++ myConkyBar)
     xmonad $ myUrgencyHook $ defaultConfig {
-
         terminal           = myTerminal,
         focusFollowsMouse  = myfocusMouse,
         borderWidth        = myBorderWidth,
@@ -362,14 +361,12 @@ main = do
         workspaces         = myWorkspaces,
         normalBorderColor  = myNormalBorderColor,
         focusedBorderColor = myFocusedBorderColor,
- 
         keys               = myKeys,
         mouseBindings      = myMouseBindings,
- 
-        layoutHook         = myLayout,
-        manageHook         = manageDocks <+> myManageHook <+> ( liftX  (fadeWindowsLogHook myFadeHook) >> idHook ),
         handleEventHook    = myEventHook,
+        layoutHook         = myLayout,
+        startupHook        = myStartupHook,
         logHook            = logHook' myStatusBarPipe,
-        startupHook        = myStartupHook
+        manageHook         = manageDocks <+> myManageHook <+> ( liftX  (fadeWindowsLogHook myFadeHook) >> idHook )
     }
 -- }}}
