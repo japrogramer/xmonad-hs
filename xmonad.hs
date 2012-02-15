@@ -49,7 +49,6 @@ import Control.Monad (liftM2)
 import qualified XMonad.Layout.Magnifier as Mag
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
-
 -- }}}
 ------------------------------------------------------------------------
 -- Urgency hint options extra {{{
@@ -61,7 +60,7 @@ myUrgencyHook = withUrgencyHook dzenUrgencyHook
 -- }}}
 ------------------------------------------------------------------------
 -- Color, font and ico,path definitions: {{{
-myWallpaper      = "~/Pictures/wallpaper/mono.jpg"
+--myWallpaper      = "~/Pictures/wallpaper/mono.jpg"
 myBitmapsPath    = "/home/japrogramer/.xmonad/icons/"
 myFont           = "-*-terminus-*-*-*-*-12*-*-*-*-*"
 myIconDir        = "/home/japrogramer/.xmonad/icons"
@@ -79,7 +78,6 @@ mySeperatorColor = "#555555"
 -- normal settings {{{
 myNormalBorderColor  =  myNormalBGColor 
 myFocusedBorderColor =  myNormalFGColor 
-
 myTerminal           = "urxvt"
 myBorderWidth        = 1
 -- }}}
@@ -109,7 +107,7 @@ myDzenPP        = defaultPP {
                                                       "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
                                                       "Full"                 -> wrapBitmap "full.xbm"
                                                       "Circle"               -> wrapBitmap "scorpio.xbm"
-                                                      "IM ReflectX IM Full"  -> wrapBitmap "pacman.xbm"
+                                                      "IM ResizableTall"     -> wrapBitmap "pacman.xbm"
                                                       "IM Grid"              -> "^p(5)#^p(5)"
                                                       _                      -> pad x
                                                   )
@@ -156,93 +154,53 @@ myModMask       = mod4Mask
 -- }}}
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.{{{
---
-argumenu = "-b -nb '"++ myNormalBGColor ++"' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '"++ myFont ++"'"
---
+argumenu = "-b -nb '"++ myNormalBGColor 
+                     ++"' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '"
+                     ++ myFont 
+                     ++"'"
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
-    -- Lterminal
-    [ ((modm .|. mod3Mask    , xK_Return ) , spawn $ XMonad.terminal conf             )
-    -- Ldmenu
-    , ((modm                 , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  )
-    -- Ldtransperancy
-    , ((modm                 , xK_minus  ) , spawn ("transset-df -a --dec .05"        )  )
-    -- Ldtransperancy
-    , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .05"        )  )
-    -- Ldtransperancy
-    , ((modm                 , xK_0      ) , spawn ("transset-df -a -t "              )  )
-    -- LRcomp
-    , ((modm                 , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  )
-    -- Lgvim
-    , ((modm .|. mod3Mask    , xK_e      ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  )
-    -- Ltime
-    , ((modm .|. mod3Mask    , xK_t      ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  )
-    -- Lranger
-    , ((modm                 , xK_f      ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  )
-    -- Lirssi
-    , ((modm .|. mod3Mask    , xK_i      ) , raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'"                   ) (title =? "irssi"     )  )
-    -- Lelinks
-    , ((modm .|. mod3Mask    , xK_o      ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  )
-    -- Lpidgin
-    , ((modm .|. mod3Mask    , xK_p      ) , spawn "pidgin"                       )
-    -- Lfirefox
-    , ((modm .|. mod3Mask    , xK_f      ) , spawn "firefox"                      )
-    -- prompt
-    , ((modm .|. mod3Mask    , xK_g      ) , windowPromptGoto myXPConfig          )
-   -- close focused window
-    , ((modm .|. mod3Mask    , xK_c      ) , kill)
-    -- prompt
-    , ((modm .|. mod3Mask    , xK_b      ) , windowPromptBring myXPConfig         )
-    -- Lnautalius
-    , ((modm .|. mod3Mask    , xK_n      ) , spawn "nautilus --no-desktop"        )
-    -- Lmocp
-    , ((modm .|. mod3Mask    , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  )
-    --  Reset the layouts on workspace
-    , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   )
+    [ ((modm .|. mod3Mask    , xK_Return ) , spawn $ XMonad.terminal conf             ) -- Lterminal
+    , ((modm                 , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  ) -- Ldmenu
+    , ((modm                 , xK_minus  ) , spawn ("transset-df -a --dec .05"        )  ) -- Ltransperancy
+    , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .05"        )  ) -- Ltransperancy
+    , ((modm                 , xK_0      ) , spawn ("transset-df -a -t "              )  ) -- Ltransperancy
+    , ((modm                 , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  ) -- Lcompton
+    , ((modm .|. mod3Mask    , xK_e      ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  ) -- Lgvim
+    , ((modm .|. mod3Mask    , xK_t      ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  ) -- Ltime
+    , ((modm                 , xK_f      ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  ) -- Lranger
+    , ((modm .|. mod3Mask    , xK_i      ) , raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'"                   ) (title =? "irssi"     )  ) -- Lirssi
+    , ((modm .|. mod3Mask    , xK_o      ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  ) -- Lelinks
+    , ((modm .|. mod3Mask    , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  ) -- Lmocp
+    , ((modm .|. mod3Mask    , xK_p ) , spawn "pidgin"                ) -- Lpidgin
+    , ((modm .|. mod3Mask    , xK_f ) , spawn "firefox"               ) -- Lfirefox
+    , ((modm .|. mod3Mask    , xK_g ) , windowPromptGoto myXPConfig   ) -- prompt
+    , ((modm .|. mod3Mask    , xK_c ) , kill                          ) -- close focused window
+    , ((modm .|. mod3Mask    , xK_b ) , windowPromptBring myXPConfig  ) -- prompt
+    , ((modm .|. mod3Mask    , xK_n ) , spawn "nautilus --no-desktop" ) -- Lnautalius
     -- moc controls
-    -- XF86AudioNext
-    , ((0                    , 0x1008ff17) , spawn "mocp -f")
-    -- XF86AudioPrev
-    , ((0                    , 0x1008ff16) , spawn "mocp -r")
-    -- XF86AudioPlay
-    , ((0                    , 0x1008ff14) , spawn "mocp -G")
-    -- XF86AudioStop
-    --, ((0                    , 0x1008ff15) , spawn ""       )
-    -- Rotate Layout Algorithms
-    , ((modm                 , xK_space )  , sendMessage NextLayout               )
-    -- Display grid select test
-    , ((modm                 , xK_g     )  , goToSelected $ gsconfig2 myColorizer )
-    -- Resize viewed windows to the correct size
-    , ((modm                 , xK_n     )  , refresh               )
-    -- Move focus to the next window
-    , ((modm                 , xK_Tab   )  , windows W.focusDown   )
-    -- Move focus to the next window
-    , ((modm                 , xK_j     )  , windows W.focusDown   )
-    -- Move focus to the previous window
-    , ((modm                 , xK_k     )  , windows W.focusUp     )
-    -- Move focus to the master window
-    , ((modm                 , xK_m     )  , windows W.focusMaster )
-    -- Swap the focused window and the master window
-    , ((modm                 , xK_Return)  , windows W.swapMaster  )
-    -- Swap the focused window with the next window
-    , ((modm .|. mod3Mask    , xK_j     )  , windows W.swapDown    )
-    -- Swap the focused window with the previous window
-    , ((modm .|. mod3Mask    , xK_k     )  , windows W.swapUp      )
-    -- Shrink the master area
-    , ((modm                 , xK_h     )  , sendMessage Shrink    )
-    -- Expand the master area
-    , ((modm                 , xK_l     )  , sendMessage Expand    )
-    -- Push window back into tiling
-    , ((modm                 , xK_t     )  , withFocused $ windows . W.sink )
-    -- Increment the number of windows in the master area
-    , ((modm                 , xK_comma )  , sendMessage (IncMasterN 1)     )
-    -- Deincrement the number of windows in the master area
-    , ((modm                 , xK_period)  , sendMessage (IncMasterN (-1))  )
-    -- Toggle the status bar gap
-    , ((modm                 , xK_b     )  , sendMessage ToggleStruts)
-    -- Restart xmonad
-    , ((modm              , xK_q     ), spawn "killall conky dzen2; xmonad --recompile; xmonad --restart")
-    --exit 
-    , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
+    , ((0                    , 0x1008ff17) , spawn "mocp -f") -- XF86AudioNext
+    , ((0                    , 0x1008ff16) , spawn "mocp -r") -- XF86AudioPrev
+    , ((0                    , 0x1008ff14) , spawn "mocp -G") -- XF86AudioPlay
+    --, ((0                    , 0x1008ff15) , spawn ""       ) -- XF86AudioStop
+    , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   ) --  Reset the layouts on workspace
+    , ((modm                 , xK_space )  , sendMessage NextLayout               ) -- Rotate Layout Algorithms
+    , ((modm                 , xK_g     )  , goToSelected $ gsconfig2 myColorizer ) -- Display grid select test
+    , ((modm                 , xK_n     )  , refresh               ) -- Resize viewed windows to the correct size
+    , ((modm                 , xK_Tab   )  , windows W.focusDown   ) -- Move focus to the next window
+    , ((modm                 , xK_j     )  , windows W.focusDown   ) -- Move focus to the next window
+    , ((modm                 , xK_k     )  , windows W.focusUp     ) -- Move focus to the previous window
+    , ((modm                 , xK_m     )  , windows W.focusMaster ) -- Move focus to the master window
+    , ((modm                 , xK_Return)  , windows W.swapMaster  ) -- Swap the focused window and the master window
+    , ((modm .|. mod3Mask    , xK_j     )  , windows W.swapDown    ) -- Swap the focused window with the next window
+    , ((modm .|. mod3Mask    , xK_k     )  , windows W.swapUp      ) -- Swap the focused window with the previous window
+    , ((modm                 , xK_h     )  , sendMessage Shrink    ) -- Shrink the master area
+    , ((modm                 , xK_l     )  , sendMessage Expand    ) -- Expand the master area
+    , ((modm                 , xK_t     )  , withFocused $ windows . W.sink ) -- Push window back into tiling
+    , ((modm                 , xK_comma )  , sendMessage (IncMasterN 1)     ) -- Increment the number of windows in the master area
+    , ((modm                 , xK_period)  , sendMessage (IncMasterN (-1))  ) -- Deincrement the number of windows in the master area
+    , ((modm                 , xK_b     )  , sendMessage ToggleStruts       ) -- Toggle the status bar gap
+    , ((modm              , xK_q     ), spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
+    , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess)) --exit
     ]
     ++
     -- mod-[1..9], Switch to workspace N
@@ -295,14 +253,14 @@ myLayout = avoidStruts                                   $
            onWorkspace (myWorkspaces !! 6 ) gimpLayout   $
            onWorkspace (myWorkspaces !! 4 ) pidginLayout $
            myLayouts
-                where
+               where
                     myLayouts    = tiled ||| Mirror tiled ||| Circle ||| Full
                     gimpLayout   = withIM (0.13) (Role "gimp-toolbox") $
                                    reflectHoriz                        $
                                    withIM (0.17) (Role "gimp-dock") Full
                     tiled        = smartBorders (ResizableTall nmaster delta ratio [])
                     full         = noBorders Full
-                    pidginLayout = withIM (15/100) (Role "buddy_list") Grid
+                    pidginLayout = withIM (15/100) (Role "buddy_list") tiled
 
                     nmaster      = 1
                     delta        = 3/100
@@ -368,7 +326,7 @@ myFadeHook = composeAll . concat $
     ]
         where
             myIgnores  = ["Firefox","Wine"]
-            my1Opacity = ["Pidgin"]
+            my1Opacity = ["Pidgin","gvim"]
             my2Opacity = ["gimp-toolbox","Gimp"]
             my3Opacity = ["mocp"]
             my4Opacity = []
@@ -394,12 +352,12 @@ logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- Startup hook {{{
 myStartupHook :: X ()
 myStartupHook = do
-                spawnOnce   " gnome-settings-daemon                                                                            "
-                spawnOnce   " nm-applet                                                                                        "
-                --spawnOnce " xsetroot -cursor_name plus -solid '#2e3436'                                                      "
-                spawnOnce   " compton                                                                                          "
-                --spawnOnce " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6                                          "
-                spawnOnce   ( " xloadimage -onroot -fullscreen " ++ myWallpaper )
+                spawnOnce   " gnome-settings-daemon"
+                spawnOnce   " nm-applet"
+                --spawnOnce " xsetroot -cursor_name plus -solid '#2e3436'"
+                spawnOnce   " compton"
+                --spawnOnce " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6"
+                --spawnOnce   ( " xloadimage -onroot -fullscreen " ++ myWallpaper )
                 addScreenCorners [ (SCUpperRight,nextWS)
                                  , (SCUpperLeft, prevWS)
                                  ]
