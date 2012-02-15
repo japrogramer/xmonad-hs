@@ -1,16 +1,14 @@
 --  vim: set foldmarker={{{,}}} foldlevel=0 foldmethod=marker :
 -- imports {{{
-import System.Exit
+import System.Exit -- Begin
 import System.IO
-import System.Posix.Unistd
-
+import System.Posix.Unistd -- End
 import XMonad
 import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?))
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Search
 import XMonad.Actions.Warp
-import XMonad.Actions.GridSelect 
-
+import XMonad.Actions.GridSelect -- End 
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -18,8 +16,7 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeWindows
-import XMonad.Hooks.ScreenCorners
-
+import XMonad.Hooks.ScreenCorners -- End
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
 import XMonad.Layout.PerWorkspace (onWorkspace)
@@ -29,23 +26,19 @@ import XMonad.Layout.ResizableTile
 import XMonad.Layout.Named
 import XMonad.Layout.Grid
 import XMonad.Layout.Spacing
-import XMonad.Layout.Circle
-
+import XMonad.Layout.Circle -- End
 import XMonad.Prompt
 import XMonad.Prompt.AppLauncher as AL
 import XMonad.Prompt.RunOrRaise
 import XMonad.Prompt.Window
-import XMonad.Prompt.Ssh
-
+import XMonad.Prompt.Ssh -- End
 import XMonad.Util.EZConfig
 import XMonad.Util.SpawnOnce
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
-import XMonad.Util.WindowProperties (getProp32s)
-
+import XMonad.Util.WindowProperties (getProp32s) -- End
 import Data.Monoid
-import Data.Char
+import Data.Char -- End
 import Control.Monad (liftM2)
-
 import qualified XMonad.Layout.Magnifier as Mag
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -59,37 +52,32 @@ myUrgencyHook = withUrgencyHook dzenUrgencyHook
     }
 -- }}}
 ------------------------------------------------------------------------
--- Color, font and ico,path definitions: {{{
+-- Setttings {{{
 --myWallpaper      = "~/Pictures/wallpaper/mono.jpg"
-myBitmapsPath    = "/home/japrogramer/.xmonad/icons/"
-myFont           = "-*-terminus-*-*-*-*-12*-*-*-*-*"
-myIconDir        = "/home/japrogramer/.xmonad/icons"
-myNormalFGColor  = "#5B40BF"
-myNormalBGColor  = "#2e3436"
-myDzenFGColor    = myNormalFGColor
-myDzenBGColor    = myNormalBGColor
-myUrgentFGColor  = "#0099ff"
-myUrgentBGColor  = "#0077ff"
-myIconFGColor    = "#777777"
-myIconBGColor    = "#0f0f0f"
-mySeperatorColor = "#555555"
--- }}}
-------------------------------------------------------------------------
--- normal settings {{{
-myNormalBorderColor  =  myNormalBGColor 
-myFocusedBorderColor =  myNormalFGColor 
-myTerminal           = "urxvt"
+myBitmapsPath        = "/home/japrogramer/.xmonad/icons/"
 myBorderWidth        = 1
+myDzenFGColor        = myNormalFGColor
+myDzenBGColor        = myNormalBGColor
+myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
+myfocusMouse         = True
+myFocusedBorderColor = myNormalFGColor
+myIconDir            = "/home/japrogramer/.xmonad/icons"
+myIconFGColor        = "#777777"
+myIconBGColor        = "#0f0f0f"
+myNormalFGColor      = "#5B40BF"
+myNormalBGColor      = "#2e3436"
+myNormalBorderColor  = myNormalBGColor
+mySeperatorColor     = "#555555"
+myTerminal           = "urxvt"
+myUrgentFGColor      = "#0099ff"
+myUrgentBGColor      = "#0077ff"
 -- }}}
 ------------------------------------------------------------------------
 -- Dzen configs {{{
 myDzenEvents    = "-e 'button3=' "
 myDzenGenOpts   = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' " 
--- Status Bar
-myWorkspaceBar  = "dzen2 -p -ta l -w 640 "
-                   ++ myDzenEvents  ++ myDzenGenOpts
--- Conky Bar
-myConkyBar      =  "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts
+myWorkspaceBar  = "dzen2 -p -ta l -w 640 " ++ myDzenEvents  ++ myDzenGenOpts -- Status Bar
+myConkyBar      =  "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts          -- Conky Bar
 -------------------------------------------------------------------------------
 -- Looks --
 myDzenPP        = defaultPP {
@@ -128,28 +116,28 @@ myWorkspaces         =  clickable . (map dzenEscape) $ ["λ","¥","ψ","δ","Σ"
 ------------------------------------------------------------------------
 --myxpconfig {{{
 myXPConfig =
-    XPC { font              = myFont 
-        , bgColor           = myNormalBGColor
-        , fgColor           = myUrgentFGColor
-        , fgHLight          = "black"
-        , bgHLight          = "grey"
-        , borderColor       = myNormalBorderColor
-        , promptBorderWidth = 1
-        , promptKeymap      = defaultXPKeymap
-        , completionKey     = xK_Tab
-        , position          = Bottom
-        , height            = 18
-        , historySize       = 25
-        , historyFilter     = id
-        , defaultText       = []
-        , autoComplete      = Just 1 
+    XPC { font                = myFont
+        , autoComplete        = Just 1
+        , bgColor             = myNormalBGColor
+        , bgHLight            = "grey"
+        , borderColor         = myNormalBorderColor
+        , completionKey       = xK_Tab
+        , defaultText         = []
+        , fgColor             = myUrgentFGColor
+        , fgHLight            = "black"
+        , height              = 18
+        , historySize         = 25
+        , historyFilter       = id
+        , promptBorderWidth   = 1
+        , promptKeymap        = defaultXPKeymap
+        , position            = Bottom
         , showCompletionOnTab = False
-        , searchPredicate   = isPrefixOf
+        , searchPredicate     = isPrefixOf
         }
 -- }}}
 ------------------------------------------------------------------------
--- modMask the default windows key" is usually mod4Mask.{{{
-myModMask       = mod4Mask
+-- modMask {{{
+myModMask = mod4Mask
 -- }}}
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.{{{
@@ -368,7 +356,7 @@ main = do
     xmonad $ myUrgencyHook $ defaultConfig {
 
         terminal           = myTerminal,
-        focusFollowsMouse  = True,
+        focusFollowsMouse  = myfocusMouse,
         borderWidth        = myBorderWidth,
         modMask            = myModMask,
         workspaces         = myWorkspaces,
