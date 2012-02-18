@@ -23,6 +23,7 @@ import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.LayoutHints
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ResizableTile
+import XMonad.Layout.MultiToggle
 import XMonad.Layout.Named
 import XMonad.Layout.Grid
 import XMonad.Layout.Spacing
@@ -32,6 +33,7 @@ import XMonad.Prompt.AppLauncher as AL
 import XMonad.Prompt.RunOrRaise
 import XMonad.Prompt.Window
 import XMonad.Prompt.Ssh -- End
+import XMonad.Util.Cursor -- test
 import XMonad.Util.EZConfig
 import XMonad.Util.SpawnOnce
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
@@ -164,8 +166,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. mod3Mask    , xK_c      ) , kill                          ) -- close focused window
     , ((modm .|. mod3Mask    , xK_b      ) , windowPromptBring myXPConfig  ) -- prompt
     , ((modm .|. mod3Mask    , xK_n      ) , spawn "nautilus --no-desktop" ) -- Lnautalius
-    , ((modm .|. mod3Mask    , xK_j      ) , windows W.swapDown     ) -- Swap the focused window with the next window
-    , ((modm .|. mod3Mask    , xK_k      ) , windows W.swapUp       ) -- Swap the focused window with the previous window
+    , ((modm .|. mod3Mask    , xK_j      ) , windows W.swapDown            ) -- Swap the focused window with the next window
+    , ((modm .|. mod3Mask    , xK_k      ) , windows W.swapUp              ) -- Swap the focused window with the previous window
+    , ((modm .|. mod3Mask    , xK_x      ) , sendMessage $ Toggle REFLECTX )
+    , ((modm .|. mod3Mask    , xK_y      ) , sendMessage $ Toggle REFLECTY )
     , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   ) --  Reset the layouts on workspace
     , ((modm                 , xK_g      ) , goToSelected $ gsconfig2 myColorizer ) -- Display grid select test
     , ((modm                 , xK_j      ) , windows W.focusDown    ) -- Move focus to the next window
@@ -213,6 +217,8 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
                                        >> windows W.shiftMaster))
     -- possible bind events to the mouse scroll wheel (button4 and button5)
+    , ((modm, button4), (\w -> focus w >> windows W.swapUp))
+    , ((modm, button5), (\w -> focus w >> windows W.swapDown))
     ]
 -- }}}
 ------------------------------------------------------------------------
@@ -236,13 +242,19 @@ myColorizer = colorRangeFromClassName
 ------------------------------------------------------------------------
 -- Layouts: {{{
 myLayout = avoidStruts                                   $
-           onWorkspace (myWorkspaces !! 6 ) gimpLayout   $
+           onWorkspace (myWorkspaces !! 6 ) gimpLayouts  $
            onWorkspace (myWorkspaces !! 4 ) pidginLayout $
            myLayouts
                where
-                    myLayouts    = tiled ||| Mirror tiled ||| Circle ||| Full
-                    gimpLayout   = withIM (0.13) (Role "gimp-toolbox") $
+                    myLayouts    = mkToggle (single REFLECTX) $
+                                   mkToggle (single REFLECTY) $ ( tiled ||| Mirror tiled ||| Circle ||| Full )
+                    gimpLayouts  = gimpLayout ||| gimpLayout2 
+                    gimpLayout   = mkToggle (single REFLECTX) $
+                                   withIM (0.13) (Role "gimp-toolbox") $
                                    reflectHoriz                        $
+                                   withIM (0.17) (Role "gimp-dock") Full
+                    gimpLayout2  = mkToggle (single REFLECTX) $
+                                   withIM (0.13) (Role "gimp-toolbox") $
                                    withIM (0.17) (Role "gimp-dock") Full
                     tiled        = smartBorders (ResizableTall nmaster delta ratio [])
                     full         = noBorders Full
@@ -260,13 +272,7 @@ myLayout = avoidStruts                                   $
 -- To match on the WM_NAME, you can use 'title' in the same way that
 -- 'className' and 'resource' are used below.
 myManageHook = composeAll . concat $
-    [ [className =? c --> doFloat       | c <- myCFloats ]
-    , [ isFullscreen  --> doFullFloat                    ]
-    , [isDialog       --> doFloat                        ]
-    , [title     =? t --> doFloat       | t <- myTFloats ]
-    , [resource  =? r --> doFloat       | r <- myRFloats ]
-    , [resource  =? i --> doIgnore      | i <- myIgnores ]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!0 ) | x <- my1Shifts]
+    [ [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!0 ) | x <- my1Shifts]
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!1 ) | x <- my2Shifts]
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!2 ) | x <- my3Shifts]
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!3 ) | x <- my4Shifts]
@@ -275,12 +281,15 @@ myManageHook = composeAll . concat $
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!6 ) | x <- my7Shifts]
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!7 ) | x <- my8Shifts]
     , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!8 ) | x <- my9Shifts]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doFloat       | x <- myTFloats ]
+    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doIgnore      | x <- myIgnores ]
+    , [ isFullscreen --> doFullFloat                    ]
+    , [ isDialog     --> doFloat                        ]
     ]
         where
             doShiftAndGo = doF . liftM2 (.) W.greedyView W.shift
-            myCFloats = ["Ekiga", "XCalc", "Xmessage", "java-lang-Thread", "LCSMain", "Eclipse", "Ediff"] 
-            myTFloats = ["Downloads", "Iceweasel Preferences", "Save As...", "Ediff"]
-            myRFloats = []
+            myTFloats = ["Downloads", "XCalc", "Xmessage",
+                         "Iceweasel Preferences", "Save As...", "Ediff"]
             myIgnores = []
             my1Shifts = []
             my2Shifts = ["Firefox"]
@@ -295,11 +304,7 @@ myManageHook = composeAll . concat $
 ------------------------------------------------------------------------
 -- fadehook {{{
 myFadeHook = composeAll . concat $
-    [ 
-      [    isUnfocused                                         --> transparency 0.2                   ]
-    , [    isDialog                                            --> transparency 0.1                   ]
-    , [    checkDock                                           --> transparency 0.2                   ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.0 | x <- myIgnores  ]
+    [ [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.0 | x <- myIgnores  ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.1 | x <- my1Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.2 | x <- my2Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.3 | x <- my3Opacity ]
@@ -309,6 +314,9 @@ myFadeHook = composeAll . concat $
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.7 | x <- my7Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.8 | x <- my8Opacity ]
     , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.9 | x <- my9Opacity ]
+    , [    checkDock                                           --> transparency 0.2                   ]
+    , [    isUnfocused                                         --> transparency 0.2                   ]
+    , [    isDialog                                            --> transparency 0.1                   ]
     ]
         where
             myIgnores  = ["Firefox","Wine"]
@@ -328,7 +336,7 @@ myFadeHook = composeAll . concat $
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
-myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook
+myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook <+> fadeWindowsEventHook
 -- }}}
 ------------------------------------------------------------------------
 -- Status bars and logging {{{
@@ -338,9 +346,10 @@ logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- Startup hook {{{
 myStartupHook :: X ()
 myStartupHook = do
+                setDefaultCursor xC_crosshair
                 spawnOnce   " gnome-settings-daemon"
                 spawnOnce   " nm-applet"
-                --spawnOnce " xsetroot -cursor_name plus -solid '#2e3436'"
+                --spawnOnce   " xsetroot -cursor_name plus -solid '#2e3436'"
                 spawnOnce   " compton"
                 --spawnOnce " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6"
                 --spawnOnce   ( " xloadimage -onroot -fullscreen " ++ myWallpaper )
@@ -367,6 +376,6 @@ main = do
         layoutHook         = myLayout,
         startupHook        = myStartupHook,
         logHook            = logHook' myStatusBarPipe,
-        manageHook         = manageDocks <+> myManageHook <+> ( liftX  (fadeWindowsLogHook myFadeHook) >> idHook )
-    }
+        manageHook         = manageDocks <+> myManageHook <+> (liftX (fadeWindowsLogHook myFadeHook) >> idHook)
+        }
 -- }}}
