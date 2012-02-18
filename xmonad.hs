@@ -93,13 +93,16 @@ myDzenPP        = defaultPP {
                           ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) . (\x -> (filter (`elem` range ) x)),
                           ppLayout          = dzenColor myNormalFGColor myNormalBGColor .
                                                   (\x -> case x of
-                                                      "ResizableTall"        -> wrapBitmap "half.xbm"
-                                                      "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
-                                                      "Full"                 -> wrapBitmap "full.xbm"
-                                                      "Circle"               -> wrapBitmap "scorpio.xbm"
-                                                      "IM ReflectX IM Full"  -> wrapBitmap "pacman.xbm"
-                                                      "IM ResizableTall"     -> "^p(5)#^p(5)"
-                                                      _                      -> pad x
+                                                      "ResizableTall"                -> wrapBitmap "half.xbm"
+                                                      "Mirror ResizableTall"         -> wrapBitmap "dish.xbm"
+                                                      "Full"                         -> wrapBitmap "full.xbm"
+                                                      "Circle"                       -> wrapBitmap "scorpio.xbm"
+                                                      "IM ResizableTall"             -> "^p(5)#^p(5)"
+                                                      "IM ReflectX IM Full"          -> wrapBitmap "fox.xbm"
+                                                      "ReflectX IM ReflectX IM Full" -> wrapBitmap "cat.xbm"
+                                                      "IM IM Full"                   -> wrapBitmap "bug_01.xbm"
+                                                      "ReflectX IM IM Full"          -> wrapBitmap "bug_02.xbm"
+                                                      _                              -> pad x
                                                   )
                             }
                                 where
@@ -247,7 +250,7 @@ myLayout = avoidStruts                                   $
            myLayouts
                where
                     myLayouts    = mkToggle (single REFLECTX) $
-                                   mkToggle (single REFLECTY) $ ( tiled ||| Mirror tiled ||| Circle ||| Full )
+                                   mkToggle (single REFLECTY) $ ( tiled ||| Mirror tiled ||| Circle ||| full )
                     gimpLayouts  = gimpLayout ||| gimpLayout2 
                     gimpLayout   = mkToggle (single REFLECTX) $
                                    withIM (0.13) (Role "gimp-toolbox") $
@@ -319,9 +322,9 @@ myFadeHook = composeAll . concat $
     , [    isDialog                                            --> transparency 0.1                   ]
     ]
         where
-            myIgnores  = ["Firefox","Wine"]
+            myIgnores  = ["Firefox","Wine","gimp"]
             my1Opacity = ["Pidgin","gvim"]
-            my2Opacity = ["gimp-toolbox","Gimp"]
+            my2Opacity = ["gimp-toolbox","gimp-dock"]
             my3Opacity = ["mocp"]
             my4Opacity = []
             my5Opacity = []
