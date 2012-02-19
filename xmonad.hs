@@ -171,9 +171,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. mod3Mask    , xK_n      ) , spawn "nautilus --no-desktop" ) -- Lnautalius
     , ((modm .|. mod3Mask    , xK_j      ) , windows W.swapDown            ) -- Swap the focused window with the next window
     , ((modm .|. mod3Mask    , xK_k      ) , windows W.swapUp              ) -- Swap the focused window with the previous window
-    , ((modm .|. mod3Mask    , xK_x      ) , sendMessage $ Toggle REFLECTX )
-    , ((modm .|. mod3Mask    , xK_y      ) , sendMessage $ Toggle REFLECTY )
-    , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   ) --  Reset the layouts on workspace
+    , ((modm .|. mod3Mask    , xK_bracketleft   ) , sendMessage $ Toggle REFLECTX ) -- REFLECTX Layout
+    , ((modm .|. mod3Mask    , xK_bracketright  ) , sendMessage $ Toggle REFLECTY ) -- REFLECTY Layout
+    , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   ) -- Reset the layouts on workspace
     , ((modm                 , xK_g      ) , goToSelected $ gsconfig2 myColorizer ) -- Display grid select test
     , ((modm                 , xK_j      ) , windows W.focusDown    ) -- Move focus to the next window
     , ((modm                 , xK_k      ) , windows W.focusUp      ) -- Move focus to the previous window
@@ -251,6 +251,7 @@ myLayout = avoidStruts                                   $
                where
                     myLayouts    = mkToggle (single REFLECTX) $
                                    mkToggle (single REFLECTY) $ ( tiled ||| Mirror tiled ||| Circle ||| full )
+                    pidginLayout = mkToggle (single REFLECTX) $ withIM (15/100) (Role "buddy_list") tiled
                     gimpLayouts  = gimpLayout ||| gimpLayout2 
                     gimpLayout   = mkToggle (single REFLECTX) $
                                    withIM (0.13) (Role "gimp-toolbox") $
@@ -261,7 +262,6 @@ myLayout = avoidStruts                                   $
                                    withIM (0.17) (Role "gimp-dock") Full
                     tiled        = smartBorders (ResizableTall nmaster delta ratio [])
                     full         = noBorders Full
-                    pidginLayout = withIM (15/100) (Role "buddy_list") tiled
 
                     nmaster      = 1
                     delta        = 3/100
@@ -339,7 +339,7 @@ myFadeHook = composeAll . concat $
 -- Defines a custom handler function for X Events. The function should
 -- return (AlL True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
-myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook <+> fadeWindowsEventHook
+myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook 
 -- }}}
 ------------------------------------------------------------------------
 -- Status bars and logging {{{
