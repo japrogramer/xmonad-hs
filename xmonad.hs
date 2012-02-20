@@ -9,7 +9,6 @@ import XMonad.Actions.CycleWS
 import XMonad.Actions.Search
 import XMonad.Actions.Warp
 import XMonad.Actions.GridSelect -- End 
-import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
@@ -33,7 +32,7 @@ import XMonad.Prompt.AppLauncher as AL
 import XMonad.Prompt.RunOrRaise
 import XMonad.Prompt.Window
 import XMonad.Prompt.Ssh -- End
-import XMonad.Util.Cursor -- test
+-- import XMonad.Util.Cursor -- test
 import XMonad.Util.EZConfig
 import XMonad.Util.SpawnOnce
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
@@ -46,14 +45,6 @@ import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 -- }}}
 ------------------------------------------------------------------------
--- Urgency hint options extra {{{
-myUrgencyHook = withUrgencyHook dzenUrgencyHook
-    { args = ["-x", "0", "-y", "184", "-h", "16", "-w", "320", "-ta ", "r", "-expand", "l", "-fg",
-              "" ++ myUrgentFGColor ++ "", "-bg", "" ++ myNormalBGColor ++ "", "-fn", "" ++ myFont ++ ""
-             ]
-    }
--- }}}
-------------------------------------------------------------------------
 -- Setttings {{{
 --myWallpaper      = "~/Pictures/wallpaper/mono.jpg"
 myBitmapsPath        = "/home/japrogramer/.xmonad/icons/"
@@ -63,16 +54,16 @@ myDzenBGColor        = myNormalBGColor
 myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
 myfocusMouse         = True
 myFocusedBorderColor = myNormalFGColor
+myIconBGColor        = "#0f0f0f"
 myIconDir            = "/home/japrogramer/.xmonad/icons"
 myIconFGColor        = "#777777"
-myIconBGColor        = "#0f0f0f"
-myNormalFGColor      = "#5B40BF"
-myNormalBGColor      = "#2e3436"
 myNormalBorderColor  = myNormalBGColor
+myNormalBGColor      = "#2e3436"
+myNormalFGColor      = "#5B40BF"
 mySeperatorColor     = "#555555"
 myTerminal           = "urxvt"
-myUrgentFGColor      = "#0099ff"
 myUrgentBGColor      = "#0077ff"
+myUrgentFGColor      = "#0099ff"
 -- }}}
 ------------------------------------------------------------------------
 -- Dzen configs {{{
@@ -211,15 +202,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events {{{
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
-    -- mod-button1, Set the window to floating mode and move by dragging
-    [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w
-                                       >> windows W.shiftMaster))
-    -- mod-button2, Raise the window to the top of the stack
-    , ((modm, button2), (\w -> focus w >> windows W.shiftMaster))
-    -- mod-button3, Set the window to floating mode and resize by dragging
-    , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
-                                       >> windows W.shiftMaster))
-    -- possible bind events to the mouse scroll wheel (button4 and button5)
+    [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster)) -- floating mode and move by dragging
+    , ((modm, button2), (\w -> focus w >> windows W.shiftMaster)) -- Raise the window to the top of the stack
+    , ((modm, button3), (\w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)) -- floating mode and resize by dragging
+    -- mouse scroll wheel (button4 and button5)
     , ((modm, button4), (\w -> focus w >> windows W.swapUp))
     , ((modm, button5), (\w -> focus w >> windows W.swapDown))
     ]
@@ -262,7 +248,6 @@ myLayout = avoidStruts                                   $
                                    withIM (0.17) (Role "gimp-dock") Full
                     tiled        = smartBorders (ResizableTall nmaster delta ratio [])
                     full         = noBorders Full
-
                     nmaster      = 1
                     delta        = 3/100
                     ratio        = toRational goldenRatio
@@ -274,20 +259,22 @@ myLayout = avoidStruts                                   $
 -- > xprop | grep WM_CLASS
 -- To match on the WM_NAME, you can use 'title' in the same way that
 -- 'className' and 'resource' are used below.
+checkName  x = (className =? x <||> title =? x <||> resource =? x)
+
 myManageHook = composeAll . concat $
-    [ [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!0 ) | x <- my1Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!1 ) | x <- my2Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!2 ) | x <- my3Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShift      ( myWorkspaces!!3 ) | x <- my4Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!4 ) | x <- my5Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!5 ) | x <- my6Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!6 ) | x <- my7Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!7 ) | x <- my8Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doShiftAndGo ( myWorkspaces!!8 ) | x <- my9Shifts]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doFloat       | x <- myTFloats ]
-    , [ ( className =? x <||> title =? x <||> resource =? x ) --> doIgnore      | x <- myIgnores ]
-    , [ isFullscreen --> doFullFloat                    ]
-    , [ isDialog     --> doFloat                        ]
+    [ [ checkName x --> doShift      (myWorkspaces!!0) | x <- my1Shifts]
+    , [ checkName x --> doShift      (myWorkspaces!!1) | x <- my2Shifts]
+    , [ checkName x --> doShift      (myWorkspaces!!2) | x <- my3Shifts]
+    , [ checkName x --> doShift      (myWorkspaces!!3) | x <- my4Shifts]
+    , [ checkName x --> doShiftAndGo (myWorkspaces!!4) | x <- my5Shifts]
+    , [ checkName x --> doShiftAndGo (myWorkspaces!!5) | x <- my6Shifts]
+    , [ checkName x --> doShiftAndGo (myWorkspaces!!6) | x <- my7Shifts]
+    , [ checkName x --> doShiftAndGo (myWorkspaces!!7) | x <- my8Shifts]
+    , [ checkName x --> doShiftAndGo (myWorkspaces!!8) | x <- my9Shifts]
+    , [ checkName x --> doFloat                        | x <- myTFloats]
+    , [ checkName x --> doIgnore                       | x <- myIgnores]
+    , [ isFullscreen --> doFullFloat]
+    , [ isDialog     --> doFloat    ]
     ]
         where
             doShiftAndGo = doF . liftM2 (.) W.greedyView W.shift
@@ -307,22 +294,24 @@ myManageHook = composeAll . concat $
 ------------------------------------------------------------------------
 -- fadehook {{{
 myFadeHook = composeAll . concat $
-    [ [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.0 | x <- myIgnores  ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.1 | x <- my1Opacity ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.2 | x <- my2Opacity ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.3 | x <- my3Opacity ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.4 | x <- my4Opacity ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.5 | x <- my5Opacity ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.6 | x <- my6Opacity ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.7 | x <- my7Opacity ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.8 | x <- my8Opacity ]
-    , [  ( className =? x <||> title =? x <||> resource =? x ) --> transparency 0.9 | x <- my9Opacity ]
-    , [    checkDock                                           --> transparency 0.2                   ]
-    , [    isUnfocused                                         --> transparency 0.2                   ]
-    , [    isDialog                                            --> transparency 0.1                   ]
+    [ [checkName x --> transparency 0.0 | x <- myIgnores ]
+    , [checkName x --> transparency 0.1 | x <- my1Opacity]
+    , [checkName x --> transparency 0.2 | x <- my2Opacity]
+    , [checkName x --> transparency 0.3 | x <- my3Opacity]
+    , [checkName x --> transparency 0.4 | x <- my4Opacity]
+    , [checkName x --> transparency 0.5 | x <- my5Opacity]
+    , [checkName x --> transparency 0.6 | x <- my6Opacity]
+    , [checkName x --> transparency 0.7 | x <- my7Opacity]
+    , [checkName x --> transparency 0.8 | x <- my8Opacity]
+    , [checkName x --> transparency 0.9 | x <- my9Opacity]
+    , [(checkName x <&&> isUnfocused) --> transparency 0.3 | x <- myOpacityD]
+    , [isDialog <&&> isUnfocused --> transparency 0.1]
+    , [isDialog                  --> transparency 0.1]
+    , [checkDock                 --> transparency 0.2]
     ]
         where
-            myIgnores  = ["Firefox","Wine","gimp"]
+            myOpacityD = myIgnores ++ my1Opacity ++ my2Opacity ++ my3Opacity
+            myIgnores  = ["Firefox","Wine","gimp-image-window"]
             my1Opacity = ["Pidgin","gvim"]
             my2Opacity = ["gimp-toolbox","gimp-dock"]
             my3Opacity = ["mocp"]
@@ -332,7 +321,6 @@ myFadeHook = composeAll . concat $
             my7Opacity = []
             my8Opacity = []
             my9Opacity = []
-
 -- }}}
 ------------------------------------------------------------------------
 -- Event handling {{{
@@ -349,7 +337,7 @@ logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- Startup hook {{{
 myStartupHook :: X ()
 myStartupHook = do
-                setDefaultCursor xC_crosshair
+                -- setDefaultCursor xC_crosshair -- needs cursor import 
                 spawnOnce   " gnome-settings-daemon"
                 spawnOnce   " nm-applet"
                 --spawnOnce   " xsetroot -cursor_name plus -solid '#2e3436'"
@@ -365,7 +353,7 @@ myStartupHook = do
 main = do
     myStatusBarPipe <- spawnPipe myWorkspaceBar
     conckyBar <- spawnPipe ( "conky -c ~/.xmonad/conkyfd | " ++ myConkyBar)
-    xmonad $ myUrgencyHook $ defaultConfig {
+    xmonad $ defaultConfig {
         terminal           = myTerminal,
         focusFollowsMouse  = myfocusMouse,
         borderWidth        = myBorderWidth,
