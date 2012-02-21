@@ -6,9 +6,7 @@ import System.Posix.Unistd -- End
 import XMonad
 import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?))
 import XMonad.Actions.CycleWS
-import XMonad.Actions.Search
-import XMonad.Actions.Warp
-import XMonad.Actions.GridSelect -- End 
+import XMonad.Actions.Warp -- End
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
@@ -19,32 +17,25 @@ import XMonad.Hooks.ScreenCorners -- End
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
 import XMonad.Layout.PerWorkspace (onWorkspace)
-import XMonad.Layout.LayoutHints
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.MultiToggle
-import XMonad.Layout.Named
-import XMonad.Layout.Grid
-import XMonad.Layout.Spacing
+import XMonad.Layout.Renamed
 import XMonad.Layout.Circle -- End
 import XMonad.Prompt
-import XMonad.Prompt.AppLauncher as AL
 import XMonad.Prompt.RunOrRaise
-import XMonad.Prompt.Window
-import XMonad.Prompt.Ssh -- End
--- import XMonad.Util.Cursor -- test
+import XMonad.Prompt.Window-- End
 import XMonad.Util.EZConfig
 import XMonad.Util.SpawnOnce
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
 import XMonad.Util.WindowProperties (getProp32s) -- End
 import Data.Monoid
-import Data.Char -- End
+import Data.Char
+import Data.List (isPrefixOf)-- End
 import Control.Monad (liftM2)
-import qualified XMonad.Layout.Magnifier as Mag
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 -- }}}
-------------------------------------------------------------------------
 -- Setttings {{{
 --myWallpaper      = "~/Pictures/wallpaper/mono.jpg"
 myBitmapsPath        = "/home/japrogramer/.xmonad/icons/"
@@ -54,73 +45,58 @@ myDzenBGColor        = myNormalBGColor
 myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
 myfocusMouse         = True
 myFocusedBorderColor = myNormalFGColor
-myIconBGColor        = "#0f0f0f"
 myIconDir            = "/home/japrogramer/.xmonad/icons"
-myIconFGColor        = "#777777"
 myNormalBorderColor  = myNormalBGColor
 myNormalBGColor      = "#2e3436"
 myNormalFGColor      = "#5B40BF"
-mySeperatorColor     = "#555555"
 myTerminal           = "urxvt"
-myUrgentBGColor      = "#0077ff"
-myUrgentFGColor      = "#0099ff"
 -- }}}
-------------------------------------------------------------------------
 -- Dzen configs {{{
 myDzenEvents    = "-e 'button3=' "
-myDzenGenOpts   = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' " 
+myDzenGenOpts   = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
 myWorkspaceBar  = "dzen2 -p -ta l -w 640 " ++ myDzenEvents  ++ myDzenGenOpts -- Status Bar
-myConkyBar      =  "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts          -- Conky Bar
--------------------------------------------------------------------------------
--- Looks --
-myDzenPP        = defaultPP {
-                          ppSep             = "^bg(" ++ myNormalBGColor ++ ")^r(1,15)^bg()",
-                          ppWsSep           = " ",
-                          ppCurrent         = wrapFgBg myNormalBGColor myNormalFGColor . pad,
-                          ppVisible         = wrapFgBg myNormalBGColor myNormalFGColor  . pad,
-                          ppHidden          = wrapBg myNormalBGColor . pad,
-                          ppHiddenNoWindows = wrapBg myNormalBGColor,
-                          ppUrgent          = wrapFg myUrgentFGColor,
-                          ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) . (\x -> (filter (`elem` range ) x)),
-                          ppLayout          = dzenColor myNormalFGColor myNormalBGColor .
-                                                  (\x -> case x of
-                                                      "ResizableTall"                -> wrapBitmap "half.xbm"
-                                                      "Mirror ResizableTall"         -> wrapBitmap "dish.xbm"
-                                                      "Full"                         -> wrapBitmap "full.xbm"
-                                                      "Circle"                       -> wrapBitmap "scorpio.xbm"
-                                                      "IM ResizableTall"             -> "^p(5)#^p(5)"
-                                                      "IM ReflectX IM Full"          -> wrapBitmap "fox.xbm"
-                                                      "ReflectX IM ReflectX IM Full" -> wrapBitmap "cat.xbm"
-                                                      "IM IM Full"                   -> wrapBitmap "bug_01.xbm"
-                                                      "ReflectX IM IM Full"          -> wrapBitmap "bug_02.xbm"
-                                                      _                              -> pad x
-                                                  )
-                            }
-                                where
-                                    wrapFgBg fgColor bgColor content= wrap ("^fg(" ++ fgColor ++ ")^bg(" ++ bgColor ++ ")") "^fg()^bg()" content
-                                    wrapFg color content = wrap ("^fg(" ++ color ++ ")") "^fg()" content
-                                    wrapBg color content = wrap ("^bg(" ++ color ++ ")") "^bg()" content
-                                    wrapBitmap bitmap = "^p(5)^i(" ++ myBitmapsPath ++ bitmap ++ ")^p(5)"
-                                    range = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ [ ' ' ]
+myConkyBar      = "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts          -- Conky Bar
+
+myDzenPP = defaultPP { ppSep             = "^bg(" ++ myNormalBGColor ++ ")^r(1,15)^bg()"
+                     , ppWsSep           = " "
+                     , ppCurrent         = dzenColor myNormalBGColor myNormalFGColor . pad
+                     , ppVisible         = dzenColor myNormalBGColor myNormalFGColor . pad
+                     , ppHidden          = wrapBg myNormalBGColor . pad
+                     , ppHiddenNoWindows = wrapBg myNormalBGColor
+                     , ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) .
+                                                        (\x -> (filter (`elem` range ) x))
+                     , ppLayout          = dzenColor myNormalFGColor myNormalBGColor .
+                                            (\x -> case x of
+                                                "ResizableTall"        -> wrapBitmap "half.xbm"
+                                                "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
+                                                "Full"                 -> wrapBitmap "full.xbm"
+                                                "Circle"               -> wrapBitmap "scorpio.xbm"
+                                                "IM ResizableTall"     -> "^p(5)#^p(5)"
+                                                _                      -> pad x
+                                            )
+                     }
+                        where
+                            wrapFg color content = wrap ("^fg(" ++ color ++ ")") "^fg()" content
+                            wrapBg color content = wrap ("^bg(" ++ color ++ ")") "^bg()" content
+                            wrapBitmap bitmap = "^p(5)^i(" ++ myBitmapsPath ++ bitmap ++ ")^p(5)"
+                            range = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ [ ' ' ]
 -- }}}
-------------------------------------------------------------------------
 -- workspaces {{{
-myWorkspaces         :: [WorkspaceId]
-myWorkspaces         =  clickable . (map dzenEscape) $ ["λ","¥","ψ","δ","Σ","ζ","η","θ","¤"]
-                                where clickable l     = [  ws  | (i,ws) <- zip [1..] l, let n = if i == 10 then i else 0 ]
+myWorkspaces :: [WorkspaceId]
+myWorkspaces =  clickable . (map dzenEscape) $ ["λ","¥","ψ","δ","Σ","ζ","η","θ","¤"]
+                    where clickable l = [  ws  | (i,ws) <- zip [1..] l, let n = if i == 10 then i else 0 ]
 -- }}}
-------------------------------------------------------------------------
 --myxpconfig {{{
 myXPConfig =
     XPC { font                = myFont
         , autoComplete        = Just 1
         , bgColor             = myNormalBGColor
-        , bgHLight            = "grey"
+        , bgHLight            = myNormalFGColor
         , borderColor         = myNormalBorderColor
         , completionKey       = xK_Tab
         , defaultText         = []
-        , fgColor             = myUrgentFGColor
-        , fgHLight            = "black"
+        , fgColor             = myNormalFGColor
+        , fgHLight            = myNormalBGColor
         , height              = 18
         , historySize         = 25
         , historyFilter       = id
@@ -131,31 +107,26 @@ myXPConfig =
         , searchPredicate     = isPrefixOf
         }
 -- }}}
-------------------------------------------------------------------------
 -- modMask {{{
 myModMask = mod4Mask
 -- }}}
-------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.{{{
-argumenu = "-b -nb '"++ myNormalBGColor 
-                     ++"' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '"
-                     ++ myFont 
-                     ++"'"
+argumenu = "-b -nb '"++ myNormalBGColor ++"' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '" ++ myFont ++"'"
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
-    [ ((modm .|. mod3Mask    , xK_Return ) , spawn $ XMonad.terminal conf             ) -- Lterminal
-    , ((modm                 , xK_p      ) , spawn ("dmenu_run " ++ argumenu          )  ) -- Ldmenu
-    , ((modm                 , xK_minus  ) , spawn ("transset-df -a --dec .05"        )  ) -- Ltransperancy
-    , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .05"        )  ) -- Ltransperancy
-    , ((modm                 , xK_0      ) , spawn ("transset-df -a -t "              )  ) -- Ltransperancy
+    [ ((modm .|. mod3Mask    , xK_Return ) , spawn $ XMonad.terminal conf      ) -- Lterminal
+    , ((modm                 , xK_p      ) , spawn ("dmenu_run " ++ argumenu   )  ) -- Ldmenu
+    , ((modm                 , xK_minus  ) , spawn ("transset-df -a --dec .05" )  ) -- Ltransperancy
+    , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .05" )  ) -- Ltransperancy
+    , ((modm                 , xK_0      ) , spawn ("transset-df -a -t "       )  ) -- Ltransperancy
     , ((modm                 , xK_F9     ) , spawn ("killall compton;sleep 1;compton" )  ) -- Lcompton
-    , ((modm                 , xK_f      ) , raiseMaybe (runInTerm "-title ranger" "sh -c 'ranger'"                 ) (title =? "ranger"    )  ) -- Lranger
-    , ((modm .|. mod3Mask    , xK_e      ) , raiseMaybe (runInTerm "-title gvim" "sh -c 'gvim'"                     ) (title =? "gvim"      )  ) -- Lgvim
+    , ((modm                 , xK_f      ) , runInTerm "-title ranger" "sh -c 'ranger'"  ) -- Lranger
+    , ((modm .|. mod3Mask    , xK_o      ) , runInTerm "-title elinks" "sh -c 'elinks'"  ) -- Lelinks
+    , ((modm .|. mod3Mask    , xK_e      ) , runInTerm "-title gvim" "sh -c 'gvim'"      ) -- Lgvim
+    , ((modm .|. mod3Mask    , xK_f      ) , raiseMaybe (spawn "firefox") (checkName "Firefox") ) -- Lfirefox
     , ((modm .|. mod3Mask    , xK_t      ) , raiseMaybe (runInTerm "-title tty-clock" "sh -c 'tty-clock -sct'"      ) (title =? "tty-clock" )  ) -- Ltime
     , ((modm .|. mod3Mask    , xK_i      ) , raiseMaybe (runInTerm "-title irssi" "sh -c 'irssi'"                   ) (title =? "irssi"     )  ) -- Lirssi
-    , ((modm .|. mod3Mask    , xK_o      ) , raiseMaybe (runInTerm "-title elinks" "sh -c 'elinks'"                 ) (title =? "elinks"    )  ) -- Lelinks
     , ((modm .|. mod3Mask    , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp"      )  ) -- Lmocp
     , ((modm .|. mod3Mask    , xK_p      ) , spawn "pidgin"                ) -- Lpidgin
-    , ((modm .|. mod3Mask    , xK_f      ) , spawn "firefox"               ) -- Lfirefox
     , ((modm .|. mod3Mask    , xK_g      ) , windowPromptGoto myXPConfig   ) -- prompt
     , ((modm .|. mod3Mask    , xK_c      ) , kill                          ) -- close focused window
     , ((modm .|. mod3Mask    , xK_b      ) , windowPromptBring myXPConfig  ) -- prompt
@@ -165,12 +136,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. mod3Mask    , xK_bracketleft   ) , sendMessage $ Toggle REFLECTX ) -- REFLECTX Layout
     , ((modm .|. mod3Mask    , xK_bracketright  ) , sendMessage $ Toggle REFLECTY ) -- REFLECTY Layout
     , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   ) -- Reset the layouts on workspace
-    , ((modm                 , xK_g      ) , goToSelected $ gsconfig2 myColorizer ) -- Display grid select test
     , ((modm                 , xK_j      ) , windows W.focusDown    ) -- Move focus to the next window
     , ((modm                 , xK_k      ) , windows W.focusUp      ) -- Move focus to the previous window
     , ((modm                 , xK_n      ) , refresh                ) -- Resize viewed windows to the correct size
     , ((modm                 , xK_space  ) , sendMessage NextLayout ) -- Rotate Layout Algorithms
     , ((modm                 , xK_m      ) , windows W.focusMaster  ) -- Move focus to the master window
+    , ((modm                 , xK_a      ) , warpToWindow (1/20) (19/20)) -- @@ Move pointer to currently focused window
+    , ((modm                 , xK_s      ) , warpToWindow (19/20) (1/20)) -- @@ Move pointer to currently focused window
     , ((modm                 , xK_Tab    ) , windows W.focusDown    ) -- Move focus to the next window
     , ((modm                 , xK_Return ) , windows W.swapMaster   ) -- Swap the focused window and the master window
     , ((0                    , 0x1008ff17) , spawn "mocp -f"    ) -- XF86AudioNext mocp Next
@@ -199,7 +171,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         -- | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
         -- , (f, m) <- [(W.view, 0), (W.shift, mod3Mask )]]
 -- }}}
-------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events {{{
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster)) -- floating mode and move by dragging
@@ -210,25 +181,6 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, button5), (\w -> focus w >> windows W.swapDown))
     ]
 -- }}}
-------------------------------------------------------------------------
--- grid colors {{{
---gsconfig1 = defaultGSConfig { gs_cellheight = 30, gs_font = "xft:Terminus:pixelsize=12", gs_cellwidth = 100 }
-gsconfig2 colorizer = (buildDefaultGSConfig colorizer) {
-                                gs_cellheight = 24,
-                                gs_font = "xft:Terminus:pixelsize=12",
-                                gs_cellpadding = 5 
-                                }
--- grid colors
-myColorizer = colorRangeFromClassName
-                      (0x66,0x66,0x99) -- lowest inactive bg
-                      (0x33,0x33,0x99) -- highest inactive bg
-                      (0x0D,0x17,0x1A) -- active bg
-                      black            -- inactive fg
-                      white            -- active fg
-                where black = minBound
-                      white = maxBound
--- }}}
-------------------------------------------------------------------------
 -- Layouts: {{{
 myLayout = avoidStruts                                   $
            onWorkspace (myWorkspaces !! 6 ) gimpLayouts  $
@@ -239,11 +191,11 @@ myLayout = avoidStruts                                   $
                                    mkToggle (single REFLECTY) $ ( tiled ||| Mirror tiled ||| Circle ||| full )
                     pidginLayout = mkToggle (single REFLECTX) $ withIM (15/100) (Role "buddy_list") tiled
                     gimpLayouts  = gimpLayout ||| gimpLayout2 
-                    gimpLayout   = mkToggle (single REFLECTX) $
+                    gimpLayout   = renamed [Replace "gimp"] $ mkToggle (single REFLECTX) $
                                    withIM (0.13) (Role "gimp-toolbox") $
                                    reflectHoriz                        $
                                    withIM (0.17) (Role "gimp-dock") Full
-                    gimpLayout2  = mkToggle (single REFLECTX) $
+                    gimpLayout2  = renamed [Replace "gimp"] $ mkToggle (single REFLECTX) $
                                    withIM (0.13) (Role "gimp-toolbox") $
                                    withIM (0.17) (Role "gimp-dock") Full
                     tiled        = smartBorders (ResizableTall nmaster delta ratio [])
@@ -253,33 +205,28 @@ myLayout = avoidStruts                                   $
                     ratio        = toRational goldenRatio
                     goldenRatio  = 2/(1+sqrt(5)::Double);
 -- }}}
-------------------------------------------------------------------------
 -- Window rules: {{{
--- To find the property name associated with a program, use
--- > xprop | grep WM_CLASS
--- To match on the WM_NAME, you can use 'title' in the same way that
--- 'className' and 'resource' are used below.
+-- To find the property name associated with a program, use xprop | grep WM_CLASS 
 checkName  x = (className =? x <||> title =? x <||> resource =? x)
 
 myManageHook = composeAll . concat $
-    [ [ checkName x --> doShift      (myWorkspaces!!0) | x <- my1Shifts]
-    , [ checkName x --> doShift      (myWorkspaces!!1) | x <- my2Shifts]
-    , [ checkName x --> doShift      (myWorkspaces!!2) | x <- my3Shifts]
-    , [ checkName x --> doShift      (myWorkspaces!!3) | x <- my4Shifts]
-    , [ checkName x --> doShiftAndGo (myWorkspaces!!4) | x <- my5Shifts]
-    , [ checkName x --> doShiftAndGo (myWorkspaces!!5) | x <- my6Shifts]
-    , [ checkName x --> doShiftAndGo (myWorkspaces!!6) | x <- my7Shifts]
-    , [ checkName x --> doShiftAndGo (myWorkspaces!!7) | x <- my8Shifts]
-    , [ checkName x --> doShiftAndGo (myWorkspaces!!8) | x <- my9Shifts]
-    , [ checkName x --> doFloat                        | x <- myTFloats]
-    , [ checkName x --> doIgnore                       | x <- myIgnores]
-    , [ isFullscreen --> doFullFloat]
-    , [ isDialog     --> doFloat    ]
+    [ [checkName x --> doShift      (myWorkspaces!!0) | x <- my1Shifts]
+    , [checkName x --> doShift      (myWorkspaces!!1) | x <- my2Shifts]
+    , [checkName x --> doShift      (myWorkspaces!!2) | x <- my3Shifts]
+    , [checkName x --> doShift      (myWorkspaces!!3) | x <- my4Shifts]
+    , [checkName x --> doShiftAndGo (myWorkspaces!!4) | x <- my5Shifts]
+    , [checkName x --> doShiftAndGo (myWorkspaces!!5) | x <- my6Shifts]
+    , [checkName x --> doShiftAndGo (myWorkspaces!!6) | x <- my7Shifts]
+    , [checkName x --> doShiftAndGo (myWorkspaces!!7) | x <- my8Shifts]
+    , [checkName x --> doShiftAndGo (myWorkspaces!!8) | x <- my9Shifts]
+    , [checkName x --> doFloat                        | x <- myTFloats]
+    , [checkName x --> doIgnore                       | x <- myIgnores]
+    , [isDialog    --> doFloat     ]
+    , [isFullscreen --> doFullFloat]
     ]
         where
             doShiftAndGo = doF . liftM2 (.) W.greedyView W.shift
-            myTFloats = ["Downloads", "XCalc", "Xmessage",
-                         "Iceweasel Preferences", "Save As...", "Ediff"]
+            myTFloats = ["Downloads", "XCalc", "Xmessage","Save As..."]
             myIgnores = []
             my1Shifts = []
             my2Shifts = ["Firefox"]
@@ -291,7 +238,6 @@ myManageHook = composeAll . concat $
             my8Shifts = []
             my9Shifts = []
 -- }}}
-------------------------------------------------------------------------
 -- fadehook {{{
 myFadeHook = composeAll . concat $
     [ [checkName x --> transparency 0.0 | x <- myIgnores ]
@@ -304,10 +250,10 @@ myFadeHook = composeAll . concat $
     , [checkName x --> transparency 0.7 | x <- my7Opacity]
     , [checkName x --> transparency 0.8 | x <- my8Opacity]
     , [checkName x --> transparency 0.9 | x <- my9Opacity]
-    , [(checkName x <&&> isUnfocused) --> transparency 0.3 | x <- myOpacityD]
-    , [isDialog <&&> isUnfocused --> transparency 0.1]
-    , [isDialog                  --> transparency 0.1]
-    , [checkDock                 --> transparency 0.2]
+    , [isUnfocused --> transparency 0.2 | x <- myOpacityD]
+    , [isDialog <&&> isUnfocused     --> transparency 0.1]
+    , [isDialog                      --> transparency 0.1]
+    , [checkDock                     --> transparency 0.2]
     ]
         where
             myOpacityD = myIgnores ++ my1Opacity ++ my2Opacity ++ my3Opacity
@@ -321,23 +267,18 @@ myFadeHook = composeAll . concat $
             my7Opacity = []
             my8Opacity = []
             my9Opacity = []
+
+myFadeHookHack = (liftX (fadeWindowsLogHook myFadeHook) >> idHook)
 -- }}}
-------------------------------------------------------------------------
 -- Event handling {{{
--- Defines a custom handler function for X Events. The function should
--- return (AlL True) if the default handler is to be run afterwards. To
--- combine event hooks use mappend or mconcat from Data.Monoid.
 myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook 
 -- }}}
-------------------------------------------------------------------------
 -- Status bars and logging {{{
 logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- }}}
-------------------------------------------------------------------------
 -- Startup hook {{{
 myStartupHook :: X ()
 myStartupHook = do
-                -- setDefaultCursor xC_crosshair -- needs cursor import 
                 spawnOnce   " gnome-settings-daemon"
                 spawnOnce   " nm-applet"
                 --spawnOnce   " xsetroot -cursor_name plus -solid '#2e3436'"
@@ -348,8 +289,7 @@ myStartupHook = do
                                  , (SCUpperLeft, prevWS)
                                  ]
 -- }}}
-------------------------------------------------------------------------
--- Now run xmonad with all the defaults we set up.{{{
+-- Run xmonad {{{
 main = do
     myStatusBarPipe <- spawnPipe myWorkspaceBar
     conckyBar <- spawnPipe ( "conky -c ~/.xmonad/conkyfd | " ++ myConkyBar)
@@ -367,6 +307,6 @@ main = do
         layoutHook         = myLayout,
         startupHook        = myStartupHook,
         logHook            = logHook' myStatusBarPipe,
-        manageHook         = manageDocks <+> myManageHook <+> (liftX (fadeWindowsLogHook myFadeHook) >> idHook)
+        manageHook         = manageDocks <+> myManageHook <+> myFadeHookHack
         }
 -- }}}
