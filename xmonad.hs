@@ -38,7 +38,6 @@ import qualified Data.Map        as M
 -- }}}
 -- Setttings {{{
 --myWallpaper      = "~/Pictures/wallpaper/mono.jpg"
-myBitmapsPath        = "/home/japrogramer/.xmonad/icons/"
 myBorderWidth        = 1
 myDzenFGColor        = myNormalFGColor
 myDzenBGColor        = myNormalBGColor
@@ -61,7 +60,7 @@ myDzenPP = defaultPP { ppSep             = "^bg(" ++ myNormalBGColor ++ ")^r(1,1
                      , ppWsSep           = " "
                      , ppCurrent         = dzenColor myNormalBGColor myNormalFGColor . pad
                      , ppVisible         = dzenColor myNormalBGColor myNormalFGColor . pad
-                     , ppHidden          = wrapBg myNormalBGColor . pad
+                     , ppHidden          = wrapBg myNormalBGColor . mypad
                      , ppHiddenNoWindows = wrapBg myNormalBGColor
                      , ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) .
                                                         (\x -> (filter (`elem` range ) x))
@@ -71,9 +70,9 @@ myDzenPP = defaultPP { ppSep             = "^bg(" ++ myNormalBGColor ++ ")^r(1,1
                                             )
                      }
                         where
+                            mypad = wrap "[" "]"
                             wrapFg color content = wrap ("^fg(" ++ color ++ ")") "^fg()" content
                             wrapBg color content = wrap ("^bg(" ++ color ++ ")") "^bg()" content
-                            wrapBitmap bitmap = "^p(5)^i(" ++ myBitmapsPath ++ bitmap ++ ")^p(5)"
                             range = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ [ ' ' ]
 -- }}}
 -- workspaces {{{
