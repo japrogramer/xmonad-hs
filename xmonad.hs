@@ -67,12 +67,7 @@ myDzenPP = defaultPP { ppSep             = "^bg(" ++ myNormalBGColor ++ ")^r(1,1
                                                         (\x -> (filter (`elem` range ) x))
                      , ppLayout          = dzenColor myNormalFGColor myNormalBGColor .
                                             (\x -> case x of
-                                                "ResizableTall"        -> wrapBitmap "half.xbm"
-                                                "Mirror ResizableTall" -> wrapBitmap "dish.xbm"
-                                                "Full"                 -> wrapBitmap "full.xbm"
-                                                "Circle"               -> wrapBitmap "scorpio.xbm"
-                                                "IM ResizableTall"     -> "^p(5)#^p(5)"
-                                                _                      -> pad x
+                                                _                      -> pad "=>"
                                             )
                      }
                         where
@@ -159,11 +154,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_q         ) , io $ exitWith ExitSuccess      ) --exit
     ]
     ++
-    -- mod-[1..9], Switch to workspace N
-    -- mod-shift-[1..9], Move client to workspace N
     [((m .|. modm, k), windows $ f i )
-        | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
-        , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask )]]
+        | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9] -- mod-[1..9], Switch to workspace N
+        , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask )]] -- mod-mod3Mask-[1..9], Move client to workspace N
     -- ++
     -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
