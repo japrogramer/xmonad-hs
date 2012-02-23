@@ -1,6 +1,6 @@
 --  vim: set foldmarker={{{,}}} foldlevel=0 foldmethod=marker :
 -- imports {{{
-import System.Exit -- Begin
+import System.Exit
 import System.IO
 import System.Posix.Unistd -- End
 import XMonad
@@ -24,50 +24,46 @@ import XMonad.Layout.Renamed
 import XMonad.Layout.Circle -- End
 import XMonad.Prompt
 import XMonad.Prompt.RunOrRaise
-import XMonad.Prompt.Window-- End
+import XMonad.Prompt.Window -- End
 import XMonad.Util.EZConfig
 import XMonad.Util.SpawnOnce
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
 import XMonad.Util.WindowProperties (getProp32s) -- End
 import Data.Monoid
 import Data.Char
-import Data.List (isPrefixOf)-- End
+import Data.List (isPrefixOf) -- End
 import Control.Monad (liftM2)
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 -- }}}
 -- Setttings {{{
---myWallpaper      = "~/Pictures/wallpaper/mono.jpg"
 myBorderWidth        = 1
-myDzenFGColor        = myNormalFGColor
-myDzenBGColor        = myNormalBGColor
+myDzenFGColor        = myFGColor
+myDzenBGColor        = myBGColor
 myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
 myfocusMouse         = True
-myFocusedBorderColor = myNormalFGColor
+myFocusedBorderColor = myFGColor
 myIconDir            = "/home/japrogramer/.xmonad/icons"
-myNormalBorderColor  = myNormalBGColor
-myNormalBGColor      = "#2e3436"
-myNormalFGColor      = "#5B40BF"
+myNormalBorderColor  = myBGColor
+myBGColor            = "#2e3436"
+myFGColor            = "#5B40BF"
 myTerminal           = "urxvt"
 -- }}}
 -- Dzen configs {{{
-myDzenEvents    = "-e 'button3=' "
-myDzenGenOpts   = "-fg '" ++ myNormalFGColor ++ "' -bg '" ++ myNormalBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
-myWorkspaceBar  = "dzen2 -p -ta l -w 640 " ++ myDzenEvents  ++ myDzenGenOpts -- Status Bar
-myConkyBar      = "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts          -- Conky Bar
+myDzenGenOpts   = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
+myWorkspaceBar  = "dzen2 -p -ta l -w 640 " ++ myDzenGenOpts -- Status Bar
+myConkyBar      = "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts -- Conky Bar
 
-myDzenPP = defaultPP { ppSep             = "^bg(" ++ myNormalBGColor ++ ")^r(1,15)^bg()"
+myDzenPP = defaultPP { ppSep             = "^bg(" ++ myBGColor ++ ")^r(1,15)^bg()"
                      , ppWsSep           = " "
-                     , ppCurrent         = dzenColor myNormalBGColor myNormalFGColor . pad
-                     , ppVisible         = dzenColor myNormalBGColor myNormalFGColor . pad
-                     , ppHidden          = wrapBg myNormalBGColor . mypad
-                     , ppHiddenNoWindows = wrapBg myNormalBGColor
-                     , ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myNormalFGColor y) .
+                     , ppCurrent         = dzenColor myBGColor myFGColor . pad
+                     , ppVisible         = dzenColor myBGColor myFGColor . pad
+                     , ppHidden          = wrapBg myBGColor . mypad
+                     , ppHiddenNoWindows = wrapBg myBGColor
+                     , ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myFGColor y) .
                                                         (\x -> (filter (`elem` range ) x))
-                     , ppLayout          = dzenColor myNormalFGColor myNormalBGColor .
-                                            (\x -> case x of
-                                                _                      -> pad "=>"
-                                            )
+                     , ppLayout          = dzenColor myFGColor myBGColor .
+                                            (\x -> case x of _ -> pad "=>")
                      }
                         where
                             mypad = wrap "[" "]"
@@ -84,13 +80,13 @@ myWorkspaces =  clickable . (map dzenEscape) $ ["λ","¥","ψ","δ","Σ","ζ","�
 myXPConfig =
     XPC { font                = myFont
         , autoComplete        = Just 1
-        , bgColor             = myNormalBGColor
-        , bgHLight            = myNormalFGColor
-        , borderColor         = myNormalBorderColor
+        , bgColor             = myBGColor
+        , bgHLight            = myFGColor
+        , borderColor         = myFocusedBorderColor
         , completionKey       = xK_Tab
         , defaultText         = []
-        , fgColor             = myNormalFGColor
-        , fgHLight            = myNormalBGColor
+        , fgColor             = myFGColor
+        , fgHLight            = myBGColor
         , height              = 18
         , historySize         = 25
         , historyFilter       = id
@@ -104,8 +100,8 @@ myXPConfig =
 -- modMask {{{
 myModMask = mod4Mask
 -- }}}
--- Key bindings. Add, modify or remove key bindings here.{{{
-argumenu = "-b -nb '"++ myNormalBGColor ++"' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '" ++ myFont ++"'"
+-- Key bindings {{{
+argumenu = "-b -nb '"++ myBGColor ++"' -nf '#736AFF' -sb '#5B40BF' -sf '#736AFF' -fn '" ++ myFont ++"'"
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. mod3Mask    , xK_Return ) , spawn $ XMonad.terminal conf      ) -- Lterminal
     , ((modm                 , xK_p      ) , spawn ("dmenu_run " ++ argumenu   )  ) -- Ldmenu
@@ -130,6 +126,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. mod3Mask    , xK_bracketleft   ) , sendMessage $ Toggle REFLECTX ) -- REFLECTX Layout
     , ((modm .|. mod3Mask    , xK_bracketright  ) , sendMessage $ Toggle REFLECTY ) -- REFLECTY Layout
     , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   ) -- Reset the layouts on workspace
+    , ((modm .|. mod3Mask    , xK_Tab    ) , prevWS ) -- change workspace
+    , ((modm                 , xK_Tab    ) , nextWS ) -- change workspace
     , ((modm                 , xK_j      ) , windows W.focusDown    ) -- Move focus to the next window
     , ((modm                 , xK_k      ) , windows W.focusUp      ) -- Move focus to the previous window
     , ((modm                 , xK_n      ) , refresh                ) -- Resize viewed windows to the correct size
@@ -137,7 +135,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm                 , xK_m      ) , windows W.focusMaster  ) -- Move focus to the master window
     , ((modm                 , xK_a      ) , warpToWindow (1/20) (19/20)) -- @@ Move pointer to currently focused window
     , ((modm                 , xK_s      ) , warpToWindow (19/20) (1/20)) -- @@ Move pointer to currently focused window
-    , ((modm                 , xK_Tab    ) , windows W.focusDown    ) -- Move focus to the next window
     , ((modm                 , xK_Return ) , windows W.swapMaster   ) -- Swap the focused window and the master window
     , ((0                    , 0x1008ff17) , spawn "mocp -f"    ) -- XF86AudioNext mocp Next
     , ((0                    , 0x1008ff16) , spawn "mocp -r"    ) -- XF86AudioPrev mocp Previous
@@ -156,14 +153,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [((m .|. modm, k), windows $ f i )
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9] -- mod-[1..9], Switch to workspace N
         , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask )]] -- mod-mod3Mask-[1..9], Move client to workspace N
-    -- ++
-    -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
-    -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
+    -- ++ -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3 -- mod-mod3Mask-{w,e,r}, Move client to screen 1, 2, or 3
     --[((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
         -- | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
         -- , (f, m) <- [(W.view, 0), (W.shift, mod3Mask )]]
 -- }}}
--- Mouse bindings: default actions bound to mouse events {{{
+-- Mouse bindings {{{
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster)) -- floating mode and move by dragging
     , ((modm, button2), (\w -> focus w >> windows W.shiftMaster)) -- Raise the window to the top of the stack
@@ -273,10 +268,8 @@ myStartupHook :: X ()
 myStartupHook = do
                 spawnOnce   " gnome-settings-daemon"
                 spawnOnce   " nm-applet"
-                --spawnOnce   " xsetroot -cursor_name plus -solid '#2e3436'"
                 spawnOnce   " compton"
                 --spawnOnce " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6"
-                --spawnOnce   ( " xloadimage -onroot -fullscreen " ++ myWallpaper )
                 addScreenCorners [ (SCUpperRight,nextWS)
                                  , (SCUpperLeft, prevWS)
                                  ]
