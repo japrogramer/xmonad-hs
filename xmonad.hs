@@ -1,57 +1,57 @@
 --  vim: set foldmarker={{{,}}} foldlevel=0 foldmethod=marker :
 -- imports {{{
-import System.Exit
-import System.IO
-import System.Posix.Unistd -- End
 import XMonad
-import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?))
 import XMonad.Actions.CycleWS
-import XMonad.Actions.Warp -- End
+import XMonad.Actions.Warp
+import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?)) -- End
 import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.SetWMName
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeWindows
-import XMonad.Hooks.ScreenCorners -- End
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageHelpers
+import XMonad.Hooks.ScreenCorners 
+import XMonad.Hooks.SetWMName -- End
+import XMonad.Layout.Circle
 import XMonad.Layout.IM
-import XMonad.Layout.Reflect
-import XMonad.Layout.PerWorkspace (onWorkspace)
-import XMonad.Layout.NoBorders
-import XMonad.Layout.ResizableTile
 import XMonad.Layout.MultiToggle
-import XMonad.Layout.Circle -- End
+import XMonad.Layout.NoBorders
+import XMonad.Layout.PerWorkspace (onWorkspace)
+import XMonad.Layout.Reflect
+import XMonad.Layout.ResizableTile -- End
 import XMonad.Prompt
 import XMonad.Prompt.RunOrRaise
 import XMonad.Prompt.Window -- End
 import XMonad.Util.EZConfig
-import XMonad.Util.SpawnOnce
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
+import XMonad.Util.SpawnOnce
 import XMonad.Util.WindowProperties (getProp32s) -- End
-import Data.Monoid
+import System.Exit -- no Sort
+import System.IO
+import System.Posix.Unistd -- End
+import Control.Monad (liftM2)
 import Data.Char
 import Data.List (isPrefixOf) -- End
-import Control.Monad (liftM2)
-import qualified XMonad.StackSet as W
+import Data.Monoid
 import qualified Data.Map        as M
+import qualified XMonad.StackSet as W
 -- }}}
 -- Setttings {{{
 myBorderWidth        = 1
-myDzenFGColor        = myFGColor
-myDzenBGColor        = myBGColor
-myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
 myfocusMouse         = True
-myFocusedBorderColor = myFGColor
-myIconDir            = "/home/japrogramer/.xmonad/icons"
-myNormalBorderColor  = myBGColor
+myTerminal           = "urxvt"
 myBGColor            = "#2e3436"
 myFGColor            = "#5B40BF"
-myTerminal           = "urxvt"
+myDzenBGColor        = myBGColor
+myDzenFGColor        = myFGColor
+myFocusedBorderColor = myFGColor
+myNormalBorderColor  = myBGColor
+myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
+myDmenu              = "-nb '" ++ myBGColor ++ "' -sb '" ++ myFGColor ++ "' -fn '" ++ myFont ++ "' -b"
+myDzenGenOpts        = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
 -- }}}
 -- Dzen configs {{{
-myDzenGenOpts   = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
-myWorkspaceBar  = "dzen2 -p -ta l -w 640 " ++ myDzenGenOpts -- Status Bar
-myConkyBar      = "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts -- Conky Bar
+myWorkspaceBar = "dzen2 -p -ta l -w 640 "        ++ myDzenGenOpts -- Status Bar
+myConkyBar     = "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts -- Conky Bar
 
 myDzenPP = defaultPP { ppSep             = "^bg(" ++ myBGColor ++ ")^r(1,15)^bg()"
                      , ppWsSep           = " "
@@ -78,21 +78,21 @@ myWorkspaces =  clickable . (map dzenEscape) $ ["λ","¥","ψ","δ","Σ","ζ","�
 --myxpconfig {{{
 myXPConfig =
     XPC { font                = myFont
-        , autoComplete        = Just 1
-        , bgColor             = myBGColor
-        , bgHLight            = myFGColor
-        , borderColor         = myFocusedBorderColor
-        , completionKey       = xK_Tab
         , defaultText         = []
-        , fgColor             = myFGColor
-        , fgHLight            = myBGColor
+        , autoComplete        = Just 1
+        , position            = Bottom
+        , showCompletionOnTab = False
+        , promptBorderWidth   = 1
         , height              = 18
         , historySize         = 25
         , historyFilter       = id
-        , promptBorderWidth   = 1
+        , completionKey       = xK_Tab
+        , borderColor         = myFocusedBorderColor
         , promptKeymap        = defaultXPKeymap
-        , position            = Bottom
-        , showCompletionOnTab = False
+        , bgColor             = myBGColor
+        , fgColor             = myFGColor
+        , bgHLight            = myFGColor
+        , fgHLight            = myBGColor
         , searchPredicate     = isPrefixOf
         }
 -- }}}
@@ -100,49 +100,48 @@ myXPConfig =
 myModMask = mod4Mask
 -- }}}
 -- Key bindings {{{
-argumenu = "-b -nb '"++ myBGColor ++"' -sb '"++myFGColor++"' -fn '" ++ myFont ++"'"
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
-    [ ((modm                 , xK_F12    ) , spawn ("killall compton;sleep 1;compton" )  ) -- Lcompton
-    , ((modm                 , xK_minus  ) , spawn ("transset-df -a --dec .05" )  ) -- Ltransperancy
-    , ((modm                 , xK_equal  ) , spawn ("transset-df -a --inc .05" )  ) -- Ltransperancy
-    , ((modm                 , xK_0      ) , spawn ("transset-df -a -t "       )  ) -- Ltransperancy
-    , ((modm                 , xK_f      ) , runInTerm "-title ranger" "sh -c 'ranger'" ) -- Lranger
-    , ((modm                 , xK_p      ) , spawn ("dmenu_run " ++ argumenu   )  ) -- Ldmenu
-    , ((modm .|. mod3Mask    , xK_e      ) , runInTerm "-title gvim" "sh -c 'gvim'" ) -- Lgvim
-    , ((modm .|. mod3Mask    , xK_f      ) , raiseMaybe (spawn "firefox") (checkName "Firefox") ) -- Lfirefox
-    , ((modm .|. mod3Mask    , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp")) -- Lmocp
-    , ((modm .|. mod3Mask    , xK_n      ) , spawn "nautilus --no-desktop" ) -- Lnautalius
-    , ((modm .|. mod3Mask    , xK_c      ) , kill                          ) -- close focused window
-    , ((modm .|. mod3Mask    , xK_g      ) , windowPromptGoto myXPConfig   ) -- prompt
-    , ((modm .|. mod3Mask    , xK_b      ) , windowPromptBring myXPConfig  ) -- prompt
-    , ((modm .|. mod3Mask    , xK_j      ) , windows W.swapDown            ) -- Swap focused window with next window
-    , ((modm .|. mod3Mask    , xK_k      ) , windows W.swapUp              ) -- Swap focused window with previous window
-    , ((modm .|. mod3Mask    , xK_bracketleft   ) , sendMessage $ Toggle REFLECTX ) -- REFLECTX Layout
-    , ((modm .|. mod3Mask    , xK_bracketright  ) , sendMessage $ Toggle REFLECTY ) -- REFLECTY Layout
-    , ((modm .|. mod3Mask    , xK_space  ) , setLayout $ XMonad.layoutHook conf   ) -- Reset layouts on workspace
-    , ((modm .|. mod3Mask    , xK_Return ) , spawn $ XMonad.terminal conf         ) -- Lterminal
-    , ((modm .|. mod3Mask    , xK_Tab    ) , prevWS ) -- change next workspace
-    , ((modm                 , xK_Tab    ) , nextWS ) -- change previous workspace
-    , ((modm                 , xK_space  ) , sendMessage NextLayout ) -- Next Layout
-    , ((modm                 , xK_Return ) , windows W.swapMaster   ) -- Swap focused window and the master window
-    , ((modm                 , xK_h      ) , sendMessage Shrink     ) -- Shrink the master area
-    , ((modm                 , xK_j      ) , windows W.focusDown    ) -- Move focus to next window
-    , ((modm                 , xK_k      ) , windows W.focusUp      ) -- Move focus to previous window
-    , ((modm                 , xK_l      ) , sendMessage Expand     ) -- Expand the master area
-    , ((modm                 , xK_m      ) , windows W.focusMaster  ) -- Move focus to master window
-    , ((modm                 , xK_n      ) , refresh                ) -- Resize viewed windows to the correct size
-    , ((modm                 , xK_a      ) , warpToWindow (1/20) (19/20)) -- Move pointer to currently focused window
-    , ((modm                 , xK_s      ) , warpToWindow (19/20) (1/20)) -- Move pointer to currently focused window
-    , ((0                    , 0x1008ff17) , spawn "mocp -f"    ) -- XF86AudioNext mocp Next
-    , ((0                    , 0x1008ff16) , spawn "mocp -r"    ) -- XF86AudioPrev mocp Previous
-    , ((0                    , 0x1008ff14) , spawn "mocp -G"    ) -- XF86AudioPlay mocp Toggle
-    --((0                    , 0x1008ff15) , spawn ""           ) -- XF86AudioStop mocp Stop
-    , ((modm                 , xK_t      ) , withFocused $ windows . W.sink ) -- Push window back into tiling
-    , ((modm                 , xK_comma  ) , sendMessage (IncMasterN 1)     ) -- Increment number of windows in master area
-    , ((modm                 , xK_period ) , sendMessage (IncMasterN (-1))  ) -- Deincrement number of windows in master area
-    , ((modm                 , xK_b      ) , sendMessage ToggleStruts       ) -- Toggle the status bar gap
-    , ((modm                 , xK_q      ) , spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
-    , ((modm .|. shiftMask   , xK_q      ) , io $ exitWith ExitSuccess      ) --exit
+    [ ((modm               , xK_F12    ) , spawn ("killall compton;sleep 1;compton")) -- Lcompton
+    , ((modm               , xK_minus  ) , spawn ("transset-df -a --dec .05")) -- Ltransperancy
+    , ((modm               , xK_equal  ) , spawn ("transset-df -a --inc .05")) -- Ltransperancy
+    , ((modm               , xK_0      ) , spawn ("transset-df -a -t "      )) -- Ltransperancy
+    , ((modm               , xK_f      ) , runInTerm "-title ranger" "sh -c 'ranger'") -- Lranger
+    , ((modm               , xK_p      ) , spawn ("dmenu_run " ++ myDmenu   )) -- Ldmenu
+    , ((modm .|. mod3Mask  , xK_e      ) , runInTerm "-title gvim" "sh -c 'gvim'") -- Lgvim
+    , ((modm .|. mod3Mask  , xK_f      ) , raiseMaybe (spawn "firefox") (checkName "Firefox")) -- Lfirefox
+    , ((modm .|. mod3Mask  , xK_m      ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp")) -- Lmocp
+    , ((modm .|. mod3Mask  , xK_n      ) , spawn "nautilus --no-desktop") -- Lnautalius
+    , ((modm .|. mod3Mask  , xK_c      ) , kill                         ) -- close focused window
+    , ((modm .|. mod3Mask  , xK_g      ) , windowPromptGoto myXPConfig  ) -- prompt
+    , ((modm .|. mod3Mask  , xK_b      ) , windowPromptBring myXPConfig ) -- prompt
+    , ((modm .|. mod3Mask  , xK_j      ) , windows W.swapDown           ) -- Swap focused window with next window
+    , ((modm .|. mod3Mask  , xK_k      ) , windows W.swapUp             ) -- Swap focused window with previous window
+    , ((modm .|. mod3Mask  , xK_bracketleft   ) , sendMessage $ Toggle REFLECTX) -- REFLECTX Layout
+    , ((modm .|. mod3Mask  , xK_bracketright  ) , sendMessage $ Toggle REFLECTY) -- REFLECTY Layout
+    , ((modm .|. mod3Mask  , xK_space  ) , setLayout $ XMonad.layoutHook conf  ) -- Reset layouts on workspace
+    , ((modm .|. mod3Mask  , xK_Return ) , spawn $ XMonad.terminal conf        ) -- Lterminal
+    , ((modm .|. mod3Mask  , xK_Tab    ) , prevWS ) -- change next workspace
+    , ((modm               , xK_Tab    ) , nextWS ) -- change previous workspace
+    , ((modm               , xK_space  ) , sendMessage NextLayout) -- Next Layout
+    , ((modm               , xK_Return ) , windows W.swapMaster  ) -- Swap focused window and the master window
+    , ((modm               , xK_h      ) , sendMessage Shrink    ) -- Shrink the master area
+    , ((modm               , xK_j      ) , windows W.focusDown   ) -- Move focus to next window
+    , ((modm               , xK_k      ) , windows W.focusUp     ) -- Move focus to previous window
+    , ((modm               , xK_l      ) , sendMessage Expand    ) -- Expand the master area
+    , ((modm               , xK_m      ) , windows W.focusMaster ) -- Move focus to master window
+    , ((modm               , xK_n      ) , refresh               ) -- Resize viewed windows to the correct size
+    , ((modm               , xK_a      ) , warpToWindow (1/20) (19/20)) -- Move pointer to currently focused window
+    , ((modm               , xK_s      ) , warpToWindow (19/20) (1/20)) -- Move pointer to currently focused window
+    , ((0                  , 0x1008ff17) , spawn "mocp -f") -- XF86AudioNext mocp Next
+    , ((0                  , 0x1008ff16) , spawn "mocp -r") -- XF86AudioPrev mocp Previous
+    , ((0                  , 0x1008ff14) , spawn "mocp -G") -- XF86AudioPlay mocp Toggle
+    --((0                  , 0x1008ff15) , spawn ""       ) -- XF86AudioStop mocp Stop
+    , ((modm               , xK_t      ) , withFocused $ windows . W.sink) -- Push window back into tiling
+    , ((modm               , xK_comma  ) , sendMessage (IncMasterN 1)    ) -- Increment number of windows in master area
+    , ((modm               , xK_period ) , sendMessage (IncMasterN (-1)) ) -- Deincrement number of windows in master area
+    , ((modm               , xK_b      ) , sendMessage ToggleStruts      ) -- Toggle the status bar gap
+    , ((modm               , xK_q      ) , spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
+    , ((modm .|. shiftMask , xK_q      ) , io $ exitWith ExitSuccess     ) --exit
     ]
     ++
     [((m .|. modm, k), windows $ f i )
@@ -262,9 +261,7 @@ myStartupHook = do
                 spawnOnce   " nm-applet"
                 spawnOnce   " compton"
                 --spawnOnce " compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6"
-                addScreenCorners [ (SCUpperRight,nextWS)
-                                 , (SCUpperLeft, prevWS)
-                                 ]
+                addScreenCorners [(SCUpperRight,nextWS) , (SCUpperLeft, prevWS)]
 -- }}}
 -- Run xmonad {{{
 main = do
