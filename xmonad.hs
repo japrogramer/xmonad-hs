@@ -159,8 +159,8 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- }}}
 -- Layouts: {{{
 myLayout = avoidStruts                                   $
-           onWorkspace (myWorkspaces !! 6 ) gimpLayouts  $
            onWorkspace (myWorkspaces !! 4 ) pidginLayout $
+           onWorkspace (myWorkspaces !! 6 ) gimpLayouts  $
            myLayouts
                where
                     myLayouts    = mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $
