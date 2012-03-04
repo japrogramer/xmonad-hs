@@ -2,6 +2,9 @@
 -- imports {{{
 import XMonad
 import XMonad.Actions.CycleWS
+import XMonad.Actions.FindEmptyWorkspace
+import XMonad.Actions.RotSlaves
+import XMonad.Actions.Submap
 import XMonad.Actions.Warp
 import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?)) -- End
 import XMonad.Hooks.DynamicLog
@@ -95,47 +98,60 @@ myXPConfig =
 -- }}}
 -- Key bindings {{{
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
-    [ ((modm               , xK_F12          ) , spawn "killall compton;sleep 1;compton") -- Lcompton
+    [ ((0                  , 0x1008ff17      ) , spawn "mocp -f") -- XF86AudioNext
+    , ((0                  , 0x1008ff16      ) , spawn "mocp -r") -- XF86AudioPrev
+    , ((0                  , 0x1008ff15      ) , spawn "mocp -x") -- XF86AudioStop
+    , ((0                  , 0x1008ff14      ) , spawn "mocp -G") -- XF86AudioPlay
+    , ((modm               , xK_F12          ) , spawn "killall compton;sleep 1;compton") -- Lcompton
     , ((modm               , xK_minus        ) , spawn "transset-df -a --dec .05") -- Ltransperancy
     , ((modm               , xK_equal        ) , spawn "transset-df -a --inc .05") -- Ltransperancy
     , ((modm               , xK_0            ) , spawn "transset-df -a -t ") -- Ltransperancy
-    , ((modm               , xK_f            ) , runInTerm "-title ranger" "sh -c 'ranger'") -- Lranger
-    , ((modm .|. mod3Mask  , xK_e            ) , runInTerm "-title gvim" "sh -c 'gvim'"    ) -- Lgvim
+    , ((modm               , xK_comma        ) , sendMessage $ IncMasterN 1   ) -- Increment number of windows in master area
+    , ((modm               , xK_period       ) , sendMessage $ IncMasterN $ -1) -- Deincrement number of windows in master area
+    , ((modm               , xK_bracketleft  ) , sendMessage $ Toggle REFLECTX) -- REFLECTX Layout
+    , ((modm               , xK_bracketright ) , sendMessage $ Toggle REFLECTY) -- REFLECTY Layout
+    , ((modm .|. mod3Mask  , xK_space        ) , setLayout   $ XMonad.layoutHook conf) -- Reset layouts on workspace
+    , ((modm .|. mod3Mask  , xK_Return       ) , spawn       $ XMonad.terminal   conf) -- Lterminal
+    , ((modm .|. mod3Mask  , xK_Tab          ) , prevWS) -- change prevWorkSpace
+    , ((modm               , xK_Tab          ) , nextWS) -- change nextWorkSpace
+    , ((modm               , xK_Return       ) , windows W.swapMaster  ) -- Swap focused master window
+    , ((modm               , xK_space        ) , sendMessage NextLayout) -- Next Layout
+    , ((modm .|. mod3Mask  , xK_e            ) , runInTerm "" "sh -c 'gvim'") -- Lgvim
     , ((modm .|. mod3Mask  , xK_f            ) , raiseMaybe (spawn "firefox") (checkName "Firefox")) -- Lfirefox
-    , ((modm .|. mod3Mask  , xK_m            ) , raiseMaybe (runInTerm "-title mocp" "sh -c 'mocp -T yellow_red_theme'" ) (title =? "mocp")) -- Lmocp
+    , ((modm .|. mod3Mask  , xK_m            ) , runInTerm "" "sh -c 'mocp -T yellow_red_theme'") -- Lmocp
     , ((modm .|. mod3Mask  , xK_n            ) , spawn "nautilus --no-desktop") -- Lnautalius
     , ((modm .|. mod3Mask  , xK_g            ) , windowPromptGoto  myXPConfig ) -- prompt
     , ((modm .|. mod3Mask  , xK_b            ) , windowPromptBring myXPConfig ) -- prompt
-    , ((modm .|. mod3Mask  , xK_c            ) , kill               ) -- kill focused window
-    , ((modm .|. mod3Mask  , xK_j            ) , windows W.swapDown ) -- Swap focused window with next window
-    , ((modm .|. mod3Mask  , xK_k            ) , windows W.swapUp   ) -- Swap focused window with previous window
-    , ((modm .|. mod3Mask  , xK_bracketleft  ) , sendMessage $ Toggle REFLECTX) -- REFLECTX Layout
-    , ((modm .|. mod3Mask  , xK_bracketright ) , sendMessage $ Toggle REFLECTY) -- REFLECTY Layout
-    , ((modm .|. mod3Mask  , xK_space        ) , setLayout $ XMonad.layoutHook conf ) -- Reset layouts on workspace
-    , ((modm .|. mod3Mask  , xK_Return       ) , spawn     $ XMonad.terminal   conf ) -- Lterminal
-    , ((modm .|. mod3Mask  , xK_Tab          ) , prevWS ) -- change prevWorkSpace
-    , ((modm               , xK_Tab          ) , nextWS ) -- change nextWorkSpace
-    , ((modm               , xK_space        ) , sendMessage NextLayout) -- Next Layout
-    , ((modm               , xK_Return       ) , windows W.swapMaster  ) -- Swap focused master window
-    , ((modm               , xK_m            ) , windows W.focusMaster ) -- Move focus to master window
-    , ((modm               , xK_h            ) , sendMessage Shrink    ) -- Shrink master area
-    , ((modm               , xK_l            ) , sendMessage Expand    ) -- Expand master area
+    , ((modm .|. mod3Mask  , xK_c            ) , kill) -- kill focused window
+    , ((modm .|. mod3Mask  , xK_j            ) , windows W.swapDown    ) -- Swap focused window with next window
+    , ((modm .|. mod3Mask  , xK_k            ) , windows W.swapUp      ) -- Swap focused window with previous window
     , ((modm               , xK_k            ) , windows W.focusUp     ) -- Move focus Up
     , ((modm               , xK_j            ) , windows W.focusDown   ) -- Move focus Down
-    , ((modm               , xK_n            ) , refresh               ) -- Resize viewed windows to the correct size
-    , ((modm               , xK_a            ) , warpToWindow (1/20) (19/20)) -- Move pointer to currently focused window
-    , ((modm               , xK_s            ) , warpToWindow (19/20) (1/20)) -- Move pointer to currently focused window
-    , ((0                  , 0x1008ff17      ) , spawn "mocp -f") -- XF86AudioNext
-    , ((0                  , 0x1008ff16      ) , spawn "mocp -r") -- XF86AudioPrev
-    , ((0                  , 0x1008ff14      ) , spawn "mocp -G") -- XF86AudioPlay
-    , ((0                  , 0x1008ff15      ) , spawn "mocp -x") -- XF86AudioStop
+    , ((modm               , xK_m            ) , windows W.focusMaster ) -- Move focus to master window
+    , ((modm               , xK_e            ) , submap . M.fromList $
+            [ ((modm               , xK_o    ) , viewEmptyWorkspace ) -- Switch to Empty workspace
+            , ((modm .|. shiftMask , xK_o    ) , tagToEmptyWorkspace) -- Move window to Empty workspace
+            ])
+    , ((modm               , xK_a            ) , submap . M.fromList $
+            [ ((modm               , xK_w    ) , warpToWindow (10/20) (10/20)) -- Move pointer focused window center
+            , ((modm               , xK_s    ) , warpToWindow (1/20)   (1/20)) -- Move pointer focused window TopLeftCorner
+            , ((modm               , xK_d    ) , warpToWindow (19/20)  (1/20)) -- Move pointer focused window TopRightCorner
+            , ((modm               , xK_a    ) , warpToWindow (1/20)  (19/20)) -- Move pointer focused window BottomLeftCorner
+            , ((modm               , xK_f    ) , warpToWindow (19/20) (19/20)) -- Move pointer focused window BottomRightCorner
+            ])
+    , ((modm               , xK_n            ) , refresh ) -- Resize viewed windows to the correct size
+    , ((modm               , xK_h            ) , sendMessage Shrink ) -- Shrink master area
+    , ((modm               , xK_l            ) , sendMessage Expand ) -- Expand master area
+    , ((modm               , xK_f            ) , runInTerm "" "sh -c 'ranger'"  ) -- Lranger
     , ((modm               , xK_p            ) , spawn $ "dmenu_run " ++ myDmenu) -- Ldmenu
     , ((modm               , xK_t            ) , withFocused $ windows . W.sink ) -- Push window back into tiling
-    , ((modm               , xK_comma        ) , sendMessage (IncMasterN 1   )  ) -- Increment number of windows in master area
-    , ((modm               , xK_period       ) , sendMessage (IncMasterN (-1))  ) -- Deincrement number of windows in master area
-    , ((modm               , xK_b            ) , sendMessage ToggleStruts       ) -- Toggle the status bar gap
+    , ((modm               , xK_b            ) , sendMessage $ ToggleStruts     ) -- Toggle the status bar gap
     , ((modm               , xK_q            ) , spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
-    , ((modm .|. shiftMask , xK_q            ) , io $ exitWith ExitSuccess      ) --exit
+    , ((modm .|. shiftMask , xK_k            ) , rotSlavesUp   )
+    , ((modm .|. shiftMask , xK_j            ) , rotSlavesDown )
+    , ((modm .|. controlMask , xK_j          ) , rotAllDown    ) -- This is weird when Layout is Mirror'
+    , ((modm .|. controlMask , xK_k          ) , rotAllUp      ) -- This is weird when Layout is Mirror'
+    , ((modm .|. shiftMask   , xK_q          ) , io $ exitWith ExitSuccess) --exit
     ]
     ++
     [((m .|. modm, k), windows $ f i )
