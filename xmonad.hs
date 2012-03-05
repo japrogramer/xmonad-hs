@@ -114,10 +114,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_0            ) , spawn "transset-df -a -t ") -- Ltransperancy
     , ((modm .|. shiftMask , xK_0            ) , submap . M.fromList $
         [ ((0              , k               ) , withAll $ fadeOut (i/10)) -- Set opacity for all
-            | (i, k) <- zip [1..]  [xK_1 .. xK_9] -- [1..9] opacity range
-        ]
-        ++
-        [ ((0              , xK_0            ) , withAll $ fadeOut 1)
+            | (i, k) <- ( zip [10] [xK_0 ..] ) ++ ( zip [0..]  [xK_1 .. xK_9] ) -- [1..9] opacity range
         ])
     , ((modm               , xK_comma        ) , sendMessage $ IncMasterN 1   ) -- Increment number of windows in master area
     , ((modm               , xK_period       ) , sendMessage $ IncMasterN $ -1) -- Deincrement number of windows in master area
@@ -146,12 +143,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
             , ((modm .|. shiftMask , xK_o    ) , tagToEmptyWorkspace) -- Move window to Empty workspace
             ])
     , ((modm               , xK_c            ) , submap . M.fromList $
-            [ ((modm               , xK_w    ) , warpToWindow (10/20) (10/20)) -- Move pointer focused window center
-            , ((modm               , xK_a    ) , warpToWindow (1/20)  (19/20)) -- Move pointer focused window BottomLeftCorner
-            , ((modm               , xK_s    ) , warpToWindow (1/20)   (1/20)) -- Move pointer focused window TopLeftCorner
-            , ((modm               , xK_d    ) , warpToWindow (19/20)  (1/20)) -- Move pointer focused window TopRightCorner
-            , ((modm               , xK_f    ) , warpToWindow (19/20) (19/20)) -- Move pointer focused window BottomRightCorner
-            ])
+        [ ((modm               , k       ) , warpToWindow (x/20) (y/20)) -- Move pointer to focused window's corners
+            | (k, x, y) <- zip3 [xK_w, xK_a, xK_s, xK_d, xK_f] [10,1,1,19,19] [10,19,1,1,19] -- corners and keys
+        ])
     , ((modm               , xK_b            ) , submap . M.fromList $
         [ ((0              , xK_s            ) , withFocused toggleBorder ) -- toggleBorders, aesthetic
         , ((0              , xK_a            ) , withAll toggleBorder     ) -- toggleBorders, aesthetic
