@@ -113,8 +113,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_equal        ) , spawn "transset-df -a --inc .05") -- Ltransperancy
     , ((modm               , xK_0            ) , spawn "transset-df -a -t ") -- Ltransperancy
     , ((modm .|. shiftMask , xK_0            ) , submap . M.fromList $
-        [ ((0              , k               ) , withAll $ fadeOut i) -- Set opacity for all
-            | (i, k) <- zip [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]  [xK_1 .. xK_9] -- [1..9] opacity range
+        [ ((0              , k               ) , withAll $ fadeOut (i/10)) -- Set opacity for all
+            | (i, k) <- zip [1..]  [xK_1 .. xK_9] -- [1..9] opacity range
         ]
         ++
         [ ((0              , xK_0            ) , withAll $ fadeOut 1)
