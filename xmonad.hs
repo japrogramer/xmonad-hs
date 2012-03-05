@@ -3,15 +3,20 @@
 import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.FindEmptyWorkspace
+import XMonad.Actions.NoBorders
 import XMonad.Actions.RotSlaves
 import XMonad.Actions.Submap
 import XMonad.Actions.Warp
+import XMonad.Actions.WithAll
 import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?)) -- End
+-- import XMonad.Hooks.DebugKeyEvents
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeWindows
+import XMonad.Hooks.FadeInactive (fadeOut)
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
+import XMonad.Hooks.Place
 import XMonad.Hooks.ScreenCorners 
 import XMonad.Hooks.SetWMName -- End
 import XMonad.Layout.Circle
@@ -36,6 +41,7 @@ import Data.Char
 import Data.List (isPrefixOf) -- End
 import Data.Monoid
 import qualified Data.Map        as M
+import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.StackSet as W
 -- }}}
 -- Setttings {{{
@@ -106,16 +112,22 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_minus        ) , spawn "transset-df -a --dec .05") -- Ltransperancy
     , ((modm               , xK_equal        ) , spawn "transset-df -a --inc .05") -- Ltransperancy
     , ((modm               , xK_0            ) , spawn "transset-df -a -t ") -- Ltransperancy
+    , ((modm .|. shiftMask , xK_0            ) , submap . M.fromList $
+        [ ((0              , k               ) , withAll $ fadeOut i) -- Set opacity for all
+            | (i, k) <- zip [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]  [xK_1 .. xK_9] -- [1..9] opacity range
+        ]
+        ++
+        [ ((0              , xK_0            ) , withAll $ fadeOut 1)
+        ])
     , ((modm               , xK_comma        ) , sendMessage $ IncMasterN 1   ) -- Increment number of windows in master area
     , ((modm               , xK_period       ) , sendMessage $ IncMasterN $ -1) -- Deincrement number of windows in master area
     , ((modm               , xK_bracketleft  ) , sendMessage $ Toggle REFLECTX) -- REFLECTX Layout
     , ((modm               , xK_bracketright ) , sendMessage $ Toggle REFLECTY) -- REFLECTY Layout
-    , ((modm .|. mod3Mask  , xK_space        ) , setLayout   $ XMonad.layoutHook conf) -- Reset layouts on workspace
+    , ((modm               , xK_space        ) , sendMessage NextLayout) -- Next Layout
+    , ((modm .|. mod3Mask  , xK_space        ) , setLayout   $ XMonad.layoutHook conf) -- Reset layout
     , ((modm .|. mod3Mask  , xK_Return       ) , spawn       $ XMonad.terminal   conf) -- Lterminal
     , ((modm .|. mod3Mask  , xK_Tab          ) , prevWS) -- change prevWorkSpace
     , ((modm               , xK_Tab          ) , nextWS) -- change nextWorkSpace
-    , ((modm               , xK_Return       ) , windows W.swapMaster  ) -- Swap focused master window
-    , ((modm               , xK_space        ) , sendMessage NextLayout) -- Next Layout
     , ((modm .|. mod3Mask  , xK_e            ) , runInTerm "" "sh -c 'gvim'") -- Lgvim
     , ((modm .|. mod3Mask  , xK_f            ) , raiseMaybe (spawn "firefox") (checkName "Firefox")) -- Lfirefox
     , ((modm .|. mod3Mask  , xK_m            ) , runInTerm "" "sh -c 'mocp -T yellow_red_theme'") -- Lmocp
@@ -127,25 +139,30 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. mod3Mask  , xK_k            ) , windows W.swapUp      ) -- Swap focused window with previous window
     , ((modm               , xK_k            ) , windows W.focusUp     ) -- Move focus Up
     , ((modm               , xK_j            ) , windows W.focusDown   ) -- Move focus Down
-    , ((modm               , xK_m            ) , windows W.focusMaster ) -- Move focus to master window
+    , ((modm               , xK_Return       ) , windows W.swapMaster  ) -- Make Master Window
+    , ((modm               , xK_m            ) , windows W.focusMaster ) -- Focus  master window
     , ((modm               , xK_e            ) , submap . M.fromList $
             [ ((modm               , xK_o    ) , viewEmptyWorkspace ) -- Switch to Empty workspace
             , ((modm .|. shiftMask , xK_o    ) , tagToEmptyWorkspace) -- Move window to Empty workspace
             ])
-    , ((modm               , xK_a            ) , submap . M.fromList $
+    , ((modm               , xK_c            ) , submap . M.fromList $
             [ ((modm               , xK_w    ) , warpToWindow (10/20) (10/20)) -- Move pointer focused window center
+            , ((modm               , xK_a    ) , warpToWindow (1/20)  (19/20)) -- Move pointer focused window BottomLeftCorner
             , ((modm               , xK_s    ) , warpToWindow (1/20)   (1/20)) -- Move pointer focused window TopLeftCorner
             , ((modm               , xK_d    ) , warpToWindow (19/20)  (1/20)) -- Move pointer focused window TopRightCorner
-            , ((modm               , xK_a    ) , warpToWindow (1/20)  (19/20)) -- Move pointer focused window BottomLeftCorner
             , ((modm               , xK_f    ) , warpToWindow (19/20) (19/20)) -- Move pointer focused window BottomRightCorner
             ])
+    , ((modm               , xK_b            ) , submap . M.fromList $
+        [ ((0              , xK_s            ) , withFocused toggleBorder ) -- toggleBorders, aesthetic
+        , ((0              , xK_a            ) , withAll toggleBorder     ) -- toggleBorders, aesthetic
+        ])
     , ((modm               , xK_n            ) , refresh ) -- Resize viewed windows to the correct size
     , ((modm               , xK_h            ) , sendMessage Shrink ) -- Shrink master area
     , ((modm               , xK_l            ) , sendMessage Expand ) -- Expand master area
     , ((modm               , xK_f            ) , runInTerm "" "sh -c 'ranger'"  ) -- Lranger
     , ((modm               , xK_p            ) , spawn $ "dmenu_run " ++ myDmenu) -- Ldmenu
     , ((modm               , xK_t            ) , withFocused $ windows . W.sink ) -- Push window back into tiling
-    , ((modm               , xK_b            ) , sendMessage $ ToggleStruts     ) -- Toggle the status bar gap
+    , ((modm               , xK_g            ) , sendMessage $ ToggleStruts     ) -- Toggle the status bar gap
     , ((modm               , xK_q            ) , spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
     , ((modm .|. shiftMask , xK_k            ) , rotSlavesUp   )
     , ((modm .|. shiftMask , xK_j            ) , rotSlavesDown )
@@ -167,7 +184,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster)) -- floating mode and move by dragging
     , ((modm, button2), (\w -> focus w >> windows W.shiftMaster)) -- Raise the window to the top of the stack
-    , ((modm, button3), (\w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)) -- floating mode and resize by dragging
+    , ((modm, button3), (\w -> focus w >> Flex.mouseResizeWindow w >> windows W.shiftMaster)) -- floating mode and resize by dragging
     -- mouse scroll wheel (button4 and button5)
     , ((modm, button4), (\w -> focus w >> windows W.swapUp))
     , ((modm, button5), (\w -> focus w >> windows W.swapDown))
@@ -226,6 +243,8 @@ myManageHook = composeAll . concat $
             my7Shifts = ["Gimp"]
             my8Shifts = []
             my9Shifts = []
+
+myPlacement = withGaps (16,0,16,0) (smart (0.5,0.5)) -- Better floating windows
 -- }}}
 -- fadehook {{{
 myFadeHook = composeAll . concat $
@@ -288,10 +307,10 @@ main = do
         focusedBorderColor = myFocusedBorderColor,
         keys               = myKeys,
         mouseBindings      = myMouseBindings,
-        handleEventHook    = myEventHook,
+        handleEventHook    = myEventHook, -- <+> debugKeyEvents,
         layoutHook         = myLayout,
         startupHook        = myStartupHook,
         logHook            = logHook' myStatusBarPipe,
-        manageHook         = manageDocks <+> myManageHook <+> myFadeHookHack
+        manageHook         = placeHook myPlacement <+> manageDocks <+> myManageHook <+> myFadeHookHack
         }
 -- }}}
