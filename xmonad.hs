@@ -1,7 +1,9 @@
 --  vim: set foldmarker={{{,}}} foldlevel=0 foldmethod=marker :
 -- imports {{{
 import XMonad
+import XMonad.Actions.Commands -- debug actions
 import XMonad.Actions.CycleWS
+import XMonad.Actions.CycleRecentWS
 import XMonad.Actions.FindEmptyWorkspace
 import XMonad.Actions.NoBorders
 import XMonad.Actions.RotSlaves
@@ -17,9 +19,10 @@ import XMonad.Hooks.FadeInactive (fadeOut)
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.Place
-import XMonad.Hooks.ScreenCorners 
+import XMonad.Hooks.ScreenCorners
 import XMonad.Hooks.SetWMName -- End
 import XMonad.Layout.Circle
+import XMonad.Layout.CenteredMaster
 import XMonad.Layout.IM
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
@@ -73,7 +76,7 @@ myDzenPP = defaultPP { ppSep             = "^bg(" ++ myBGColor ++ ")^r(1,15)^bg(
                      , ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myFGColor y) .
                                                         (\x -> filter (`elem` range ) x )
                      , ppLayout          = dzenColor myFGColor myBGColor .
-                                            (\x -> case x of _ -> pad "=>")
+                                            (\x -> case x of _ -> pad ">>=")
                      }
                         where
                             mypad = wrap "[" "]"
@@ -109,18 +112,18 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0                  , 0x1008ff15      ) , spawn "mocp -x") -- XF86AudioStop
     , ((0                  , 0x1008ff14      ) , spawn "mocp -G") -- XF86AudioPlay
     , ((modm               , xK_F12          ) , spawn "killall compton;sleep 1;compton") -- Lcompton
-    , ((modm               , xK_minus        ) , spawn "transset-df -a --dec .05") -- Ltransperancy
-    , ((modm               , xK_equal        ) , spawn "transset-df -a --inc .05") -- Ltransperancy
-    , ((modm               , xK_0            ) , spawn "transset-df -a -t ") -- Ltransperancy
+    , ((modm               , xK_minus        ) , spawn "transset-df -a --dec .05" ) -- Ltransperancy
+    , ((modm               , xK_equal        ) , spawn "transset-df -a --inc .05" ) -- Ltransperancy
+    , ((modm               , xK_0            ) , spawn "transset-df -a -t "       ) -- Ltransperancy
     , ((modm .|. shiftMask , xK_0            ) , submap . M.fromList $
-        [ ((0              , k               ) , withAll $ fadeOut (i/10)) -- Set opacity for all
-            | (i, k) <- ( zip [10] [xK_0 ..] ) ++ ( zip [0..]  [xK_1 .. xK_9] ) -- [1..9] opacity range
+        [ ((0              , k               ) , withAll $ fadeOut (i/20)) -- Set opacity for all
+            | (i, k) <- ( zip [20] [xK_0 ..] ) ++ ( zip [10..]  [xK_1 .. xK_9] ) -- [1..9] opacity range
         ])
     , ((modm               , xK_comma        ) , sendMessage $ IncMasterN 1   ) -- Increment number of windows in master area
     , ((modm               , xK_period       ) , sendMessage $ IncMasterN $ -1) -- Deincrement number of windows in master area
     , ((modm               , xK_bracketleft  ) , sendMessage $ Toggle REFLECTX) -- REFLECTX Layout
     , ((modm               , xK_bracketright ) , sendMessage $ Toggle REFLECTY) -- REFLECTY Layout
-    , ((modm               , xK_space        ) , sendMessage NextLayout) -- Next Layout
+    , ((modm               , xK_semicolon    ) , cycleRecentWS [xK_Alt_L] xK_semicolon xK_apostrophe) -- recent workspace
     , ((modm .|. mod3Mask  , xK_space        ) , setLayout   $ XMonad.layoutHook conf) -- Reset layout
     , ((modm .|. mod3Mask  , xK_Return       ) , spawn       $ XMonad.terminal   conf) -- Lterminal
     , ((modm .|. mod3Mask  , xK_Tab          ) , prevWS) -- change prevWorkSpace
@@ -139,11 +142,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_Return       ) , windows W.swapMaster  ) -- Make Master Window
     , ((modm               , xK_m            ) , windows W.focusMaster ) -- Focus  master window
     , ((modm               , xK_e            ) , submap . M.fromList $
-            [ ((modm               , xK_o    ) , viewEmptyWorkspace ) -- Switch to Empty workspace
-            , ((modm .|. shiftMask , xK_o    ) , tagToEmptyWorkspace) -- Move window to Empty workspace
-            ])
+        [ ((modm               , xK_o        ) , viewEmptyWorkspace ) -- Switch to Empty workspace
+        , ((modm .|. shiftMask , xK_o        ) , tagToEmptyWorkspace) -- Move window to Empty workspace
+        ])
     , ((modm               , xK_c            ) , submap . M.fromList $
-        [ ((modm               , k       ) , warpToWindow (x/20) (y/20)) -- Move pointer to focused window's corners
+        [ ((modm           , k               ) , warpToWindow (x/20) (y/20)) -- Move pointer to focused window's corners
             | (k, x, y) <- zip3 [xK_w, xK_a, xK_s, xK_d, xK_f] [10,1,1,19,19] [10,19,1,1,19] -- corners and keys
         ])
     , ((modm               , xK_b            ) , submap . M.fromList $
@@ -162,13 +165,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask , xK_j            ) , rotSlavesDown )
     , ((modm .|. controlMask , xK_j          ) , rotAllDown    ) -- This is weird when Layout is Mirror'
     , ((modm .|. controlMask , xK_k          ) , rotAllUp      ) -- This is weird when Layout is Mirror'
+    , ((modm .|. controlMask , xK_y          ) , commands >>= runCommand)
     , ((modm .|. shiftMask   , xK_q          ) , io $ exitWith ExitSuccess) --exit
     ]
     ++
     [((m .|. modm, k), windows $ f i )
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9] -- mod-[1..9], Switch to workspace N
         , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask )]]  -- mod-mod3Mask-[1..9], Move client to workspace N
-    -- ++ 
+    -- ++
     -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3, mod-mod3Mask-{w,e,r}, Move client to screen 1, 2, or 3
     --[((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
         -- | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
@@ -193,7 +197,7 @@ myLayout = avoidStruts                                   $
                     myLayouts    = mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $
                                    ( tiled ||| Mirror tiled ||| Circle ||| full )
                     pidginLayout = mkToggle (single REFLECTX) $ withIM (15/100) (Role "buddy_list") tiled
-                    gimpLayouts  = gimpLayout ||| gimpLayout2 
+                    gimpLayouts  = gimpLayout ||| gimpLayout2
                     gimpLayout   = mkToggle (single REFLECTX) $ withIM (0.13) (Role "gimp-toolbox") $ reflectHoriz $
                                    withIM (0.17) (Role "gimp-dock") Full
                     gimpLayout2  = mkToggle (single REFLECTX) $ withIM (0.13) (Role "gimp-toolbox") $
@@ -206,7 +210,7 @@ myLayout = avoidStruts                                   $
                     goldenRatio  = 2/(1+sqrt(5)::Double);
 -- }}}
 -- Window rules: {{{
--- To find the property name associated with a program, use xprop | grep WM_CLASS 
+-- To find the property name associated with a program, use xprop | grep WM_CLASS
 checkName  x = (className =? x <||> title =? x <||> resource =? x)
 
 myManageHook = composeAll . concat $
@@ -273,12 +277,21 @@ myFadeHook = composeAll . concat $
 myFadeHookHack = (liftX (fadeWindowsLogHook myFadeHook) >> idHook)
 -- }}}
 -- Event handling {{{
-myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook 
+myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook
+-- }}}
+-- debugcommands {{{
+commands :: X [(String, X ())]
+commands =do
+    return $ myCommands
+        where
+            myCommands=[("killall" , killAll)
+                       ]
 -- }}}
 -- Status bars and logging {{{
 logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- }}}
 -- Startup hook {{{
+
 myStartupHook :: X ()
 myStartupHook = do
                 spawnOnce   "gnome-settings-daemon"
