@@ -11,7 +11,7 @@ import XMonad.Actions.Submap
 import XMonad.Actions.Warp
 import XMonad.Actions.WithAll
 import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?)) -- End
--- import XMonad.Hooks.DebugKeyEvents
+{-import XMonad.Hooks.DebugKeyEvents-}
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeWindows
@@ -20,7 +20,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.Place
 import XMonad.Hooks.ScreenCorners
-import XMonad.Hooks.SetWMName -- End
+{-import XMonad.Hooks.SetWMName -- End-}
 import XMonad.Layout.Circle
 import XMonad.Layout.CenteredMaster
 import XMonad.Layout.IM
@@ -30,6 +30,7 @@ import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.Reflect
 import XMonad.Layout.ResizableTile -- End
 import XMonad.Prompt
+import XMonad.Prompt.AppendFile
 import XMonad.Prompt.RunOrRaise
 import XMonad.Prompt.Window -- End
 import XMonad.Util.EZConfig
@@ -54,8 +55,6 @@ myTerminal           = "urxvt"
 myBGColor            = "#2e3436"
 myFGColor            = "#5B40BF"
 myModMask            = mod4Mask
-myDzenBGColor        = myBGColor
-myDzenFGColor        = myFGColor
 myFocusedBorderColor = myFGColor
 myNormalBorderColor  = myBGColor
 myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
@@ -73,10 +72,8 @@ myDzenPP = defaultPP { ppSep             = "^bg(" ++ myBGColor ++ ")^r(1,15)^bg(
                      , ppVisible         = dzenColor myBGColor myFGColor . pad
                      , ppHidden          = wrapBg myBGColor . mypad
                      , ppHiddenNoWindows = wrapBg myBGColor
-                     , ppTitle           = shorten 60 . (\y -> " " ++ wrapFg myFGColor y) .
-                                                        (\x -> filter (`elem` range ) x )
-                     , ppLayout          = dzenColor myFGColor myBGColor .
-                                            (\x -> case x of _ -> pad ">>=")
+                     , ppTitle           = shorten 60 . (\x -> wrapFg myFGColor $ filter (`elem` range ) x)
+                     , ppLayout          = dzenColor myFGColor myBGColor . (\x -> case x of _ -> pad ">>=")
                      }
                         where
                             mypad = wrap "[" "]"
@@ -110,14 +107,18 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((0                  , 0x1008ff17      ) , spawn "mocp -f") -- XF86AudioNext
     , ((0                  , 0x1008ff16      ) , spawn "mocp -r") -- XF86AudioPrev
     , ((0                  , 0x1008ff15      ) , spawn "mocp -x") -- XF86AudioStop
-    , ((0                  , 0x1008ff14      ) , spawn "mocp -G") -- XF86AudioPlay
+    , ((0                  , 0x1008ff14      ) , {-| do -- TODO1 if i can get this to work
+                                                 raiseMaybe (runInTerm "-title mocp" "zsh -c 'mocp -T yellow_red_theme'") (title =? "mocp")-}
+                                                 spawn "mocp -G") -- XF86AudioPlay
+    , ((modm               , 0x1008ff14      ) , runInTerm "" "sh -c 'mocp -T green_theme'") -- Lmocp temporary untill TODO1 above
     , ((modm               , xK_F12          ) , spawn "killall compton;sleep 1;compton") -- Lcompton
     , ((modm               , xK_minus        ) , spawn "transset-df -a --dec .05" ) -- Ltransperancy
     , ((modm               , xK_equal        ) , spawn "transset-df -a --inc .05" ) -- Ltransperancy
     , ((modm               , xK_0            ) , spawn "transset-df -a -t "       ) -- Ltransperancy
-    , ((modm .|. shiftMask , xK_0            ) , submap . M.fromList $
-        [ ((0              , k               ) , withAll $ fadeOut (i/20)) -- Set opacity for all
+    , ((modm .|. shiftMask , xK_0            ) , submap . M.fromList $ -- This might be broken ??
+        [ ((m              , k               ) , f $ fadeOut (i/20)) -- Set opacity for all
             | (i, k) <- ( zip [20] [xK_0 ..] ) ++ ( zip [10..]  [xK_1 .. xK_9] ) -- [1..9] opacity range
+            , (f, m) <- [(withAll, modm), (withFocused, 0)] -- Operation done on all or one
         ])
     , ((modm               , xK_comma        ) , sendMessage $ IncMasterN 1   ) -- Increment number of windows in master area
     , ((modm               , xK_period       ) , sendMessage $ IncMasterN $ -1) -- Deincrement number of windows in master area
@@ -126,21 +127,27 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_semicolon    ) , cycleRecentWS [xK_Alt_L] xK_semicolon xK_apostrophe) -- recent workspace
     , ((modm .|. mod3Mask  , xK_space        ) , setLayout   $ XMonad.layoutHook conf) -- Reset layout
     , ((modm .|. mod3Mask  , xK_Return       ) , spawn       $ XMonad.terminal   conf) -- Lterminal
-    , ((modm .|. mod3Mask  , xK_Tab          ) , prevWS) -- change prevWorkSpace
+    , ((modm .|. shiftMask , xK_Tab          ) , prevWS) -- change prevWorkSpace
     , ((modm               , xK_Tab          ) , nextWS) -- change nextWorkSpace
     , ((modm .|. mod3Mask  , xK_e            ) , runInTerm "" "sh -c 'gvim'") -- Lgvim
     , ((modm .|. mod3Mask  , xK_f            ) , raiseMaybe (spawn "firefox") (checkName "Firefox")) -- Lfirefox
-    , ((modm .|. mod3Mask  , xK_m            ) , runInTerm "" "sh -c 'mocp -T yellow_red_theme'") -- Lmocp
     , ((modm .|. mod3Mask  , xK_n            ) , spawn "nautilus --no-desktop") -- Lnautalius
     , ((modm .|. mod3Mask  , xK_g            ) , windowPromptGoto  myXPConfig ) -- prompt
     , ((modm .|. mod3Mask  , xK_b            ) , windowPromptBring myXPConfig ) -- prompt
     , ((modm .|. mod3Mask  , xK_c            ) , kill) -- kill focused window
     , ((modm .|. mod3Mask  , xK_j            ) , windows W.swapDown    ) -- Swap focused window with next window
     , ((modm .|. mod3Mask  , xK_k            ) , windows W.swapUp      ) -- Swap focused window with previous window
+    , ((modm               , xK_Return       ) , windows W.swapMaster  ) -- Make focused window Master
     , ((modm               , xK_k            ) , windows W.focusUp     ) -- Move focus Up
     , ((modm               , xK_j            ) , windows W.focusDown   ) -- Move focus Down
-    , ((modm               , xK_Return       ) , windows W.swapMaster  ) -- Make Master Window
     , ((modm               , xK_m            ) , windows W.focusMaster ) -- Focus  master window
+    , ((modm .|. controlMask, xK_n           ) , submap . M.fromList $
+        [ ((modm           , k               ) ,
+                do
+                spawn ("date>>"++"/home/japrogramer/Documents/Notes/NOTES" ++ r) -- Append time
+                appendFilePrompt myXPConfig $ "/home/japrogramer/Documents/Notes/NOTES" ++ r) -- Lprompt
+            | ( k, r ) <- zip [xK_w, xK_i, xK_s] ["work", "ideas", "sexy"]
+        ])
     , ((modm               , xK_e            ) , submap . M.fromList $
         [ ((modm               , xK_o        ) , viewEmptyWorkspace ) -- Switch to Empty workspace
         , ((modm .|. shiftMask , xK_o        ) , tagToEmptyWorkspace) -- Move window to Empty workspace
@@ -154,15 +161,16 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         , ((0              , xK_a            ) , withAll toggleBorder     ) -- toggleBorders, aesthetic
         ])
     , ((modm               , xK_n            ) , refresh ) -- Resize viewed windows to the correct size
-    , ((modm               , xK_h            ) , sendMessage Shrink ) -- Shrink master area
-    , ((modm               , xK_l            ) , sendMessage Expand ) -- Expand master area
+    , ((modm               , xK_space        ) , sendMessage NextLayout ) -- Next Layout
+    , ((modm               , xK_h            ) , sendMessage Shrink     ) -- Shrink master area
+    , ((modm               , xK_l            ) , sendMessage Expand     ) -- Expand master area
     , ((modm               , xK_f            ) , runInTerm "" "sh -c 'ranger'"  ) -- Lranger
     , ((modm               , xK_p            ) , spawn $ "dmenu_run " ++ myDmenu) -- Ldmenu
     , ((modm               , xK_t            ) , withFocused $ windows . W.sink ) -- Push window back into tiling
     , ((modm               , xK_g            ) , sendMessage $ ToggleStruts     ) -- Toggle the status bar gap
     , ((modm               , xK_q            ) , spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
-    , ((modm .|. shiftMask , xK_k            ) , rotSlavesUp   )
-    , ((modm .|. shiftMask , xK_j            ) , rotSlavesDown )
+    , ((modm .|. shiftMask , xK_k            ) , rotSlavesUp   ) -- rotSlavesUp without shifting Master
+    , ((modm .|. shiftMask , xK_j            ) , rotSlavesDown ) -- rotSlavesDown without shifting Master
     , ((modm .|. controlMask , xK_j          ) , rotAllDown    ) -- This is weird when Layout is Mirror'
     , ((modm .|. controlMask , xK_k          ) , rotAllUp      ) -- This is weird when Layout is Mirror'
     , ((modm .|. controlMask , xK_y          ) , commands >>= runCommand)
@@ -171,12 +179,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     ++
     [((m .|. modm, k), windows $ f i )
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9] -- mod-[1..9], Switch to workspace N
-        , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask )]]  -- mod-mod3Mask-[1..9], Move client to workspace N
-    -- ++
-    -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3, mod-mod3Mask-{w,e,r}, Move client to screen 1, 2, or 3
-    --[((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        -- | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
-        -- , (f, m) <- [(W.view, 0), (W.shift, mod3Mask )]]
+        , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask )]
+    ]  -- mod-mod3Mask-[1..9], Move client to workspace N
+    {- | ++
+    --mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3, mod-mod3Mask-{w,e,r}, Move client to screen 1, 2, or 3
+    [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
+         | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
+         , (f, m) <- [(W.view, 0), (W.shift, mod3Mask )]]-}
 -- }}}
 -- Mouse bindings {{{
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -274,18 +283,17 @@ myFadeHook = composeAll . concat $
             my8Opacity = []
             my9Opacity = []
 
-myFadeHookHack = (liftX (fadeWindowsLogHook myFadeHook) >> idHook)
+myFadeHookHack = ( =<< ) idHook $ liftX (fadeWindowsLogHook myFadeHook)
 -- }}}
 -- Event handling {{{
 myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook
 -- }}}
 -- debugcommands {{{
 commands :: X [(String, X ())]
-commands =do
-    return $ myCommands
-        where
-            myCommands=[("killall" , killAll)
-                       ]
+commands = return $ myCommands
+            where
+                myCommands=[("killall" , killAll)
+                           ]
 -- }}}
 -- Status bars and logging {{{
 logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
@@ -297,7 +305,7 @@ myStartupHook = do
                 spawnOnce   "gnome-settings-daemon"
                 spawnOnce   "nm-applet"
                 spawnOnce   "compton"
-                --spawnOnce "compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6"
+                {- spawnOnce "compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6"-}
                 addScreenCorners [(SCUpperRight,nextWS) , (SCUpperLeft, prevWS)]
 -- }}}
 -- Run xmonad {{{
