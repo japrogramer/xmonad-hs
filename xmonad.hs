@@ -2,12 +2,14 @@
 -- imports {{{
 import XMonad
 import XMonad.Actions.Commands -- debug actions
+import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS
 import XMonad.Actions.CycleRecentWS
 import XMonad.Actions.FindEmptyWorkspace
 import XMonad.Actions.NoBorders
 import XMonad.Actions.RotSlaves
 import XMonad.Actions.Submap
+import XMonad.Actions.TagWindows
 import XMonad.Actions.Warp
 import XMonad.Actions.WithAll
 import XMonad.Actions.WindowGo (title, raiseMaybe, runOrRaise) --, (=?)) -- End
@@ -19,7 +21,9 @@ import XMonad.Hooks.FadeInactive (fadeOut)
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.Place
+{-import QueryAnything-}
 import XMonad.Hooks.ScreenCorners
+import XMonad.Hooks.XPropManage
 {-import XMonad.Hooks.SetWMName -- End-}
 import XMonad.Layout.Circle
 import XMonad.Layout.CenteredMaster
@@ -42,7 +46,7 @@ import System.IO
 import System.Posix.Unistd -- End
 import Control.Monad (liftM2)
 import Data.Char
-import Data.List (isPrefixOf) -- End
+import Data.List (isInfixOf,isPrefixOf) -- End
 import Data.Monoid
 import qualified Data.Map        as M
 import qualified XMonad.Actions.FlexibleResize as Flex
@@ -59,6 +63,7 @@ myFocusedBorderColor = myFGColor
 myNormalBorderColor  = myBGColor
 myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
 myWorkspaces         = ["λ","¥","ψ","δ","Σ","ζ","η","θ","¤"]
+myNotesPath          = "/home/japrogramer/Documents/Notes/NOTES"
 myDmenu              = "-nb '" ++ myBGColor ++ "' -sb '" ++ myFGColor ++ "' -fn '" ++ myFont ++ "' -b"
 myDzenGenOpts        = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
 -- }}}
@@ -107,15 +112,17 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((0                  , 0x1008ff17      ) , spawn "mocp -f") -- XF86AudioNext
     , ((0                  , 0x1008ff16      ) , spawn "mocp -r") -- XF86AudioPrev
     , ((0                  , 0x1008ff15      ) , spawn "mocp -x") -- XF86AudioStop
-    , ((0                  , 0x1008ff14      ) , {-| do -- TODO1 if i can get this to work
-                                                 raiseMaybe (runInTerm "-title mocp" "zsh -c 'mocp -T yellow_red_theme'") (title =? "mocp")-}
+    , ((0                  , 0x1008ff14      ) , do
+                                                 withTaggedGlobalP "mocp" (W.shiftWin (myWorkspaces !! 3))
+                                                 windows $ W.greedyView (myWorkspaces !! 3)
                                                  spawn "mocp -G") -- XF86AudioPlay
-    , ((modm               , 0x1008ff14      ) , runInTerm "" "sh -c 'mocp -T green_theme'") -- Lmocp temporary untill TODO1 above
+    , ((controlMask        , 0x1008ff14      ) , spawn "mocp -G") -- XF86AudioPlay
+    , ((modm               , 0x1008ff14      ) , runInTerm "" "sh -c 'mocp -T darkdot_theme'") -- Lmocp temporary untill TODO1 above
     , ((modm               , xK_F12          ) , spawn "killall compton;sleep 1;compton") -- Lcompton
     , ((modm               , xK_minus        ) , spawn "transset-df -a --dec .05" ) -- Ltransperancy
     , ((modm               , xK_equal        ) , spawn "transset-df -a --inc .05" ) -- Ltransperancy
     , ((modm               , xK_0            ) , spawn "transset-df -a -t "       ) -- Ltransperancy
-    , ((modm .|. shiftMask , xK_0            ) , submap . M.fromList $ -- This might be broken ??
+    , ((modm .|. shiftMask , xK_0            ) , submap . M.fromList $ -- Magic fadeOut
         [ ((m              , k               ) , f $ fadeOut (i/20)) -- Set opacity for all
             | (i, k) <- ( zip [20] [xK_0 ..] ) ++ ( zip [10..]  [xK_1 .. xK_9] ) -- [1..9] opacity range
             , (f, m) <- [(withAll, modm), (withFocused, 0)] -- Operation done on all or one
@@ -129,36 +136,37 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. mod3Mask  , xK_Return       ) , spawn       $ XMonad.terminal   conf) -- Lterminal
     , ((modm .|. shiftMask , xK_Tab          ) , prevWS) -- change prevWorkSpace
     , ((modm               , xK_Tab          ) , nextWS) -- change nextWorkSpace
+    , ((modm .|. shiftMask , xK_c            ) , kill ) -- Fast kill
+    , ((modm .|. mod3Mask  , xK_c            ) , submap . M.fromList $ -- Speciall kills
+        [ ( (modm          , k               ) , i )
+            | (i, k) <- zip [killAll, kill, kill1, killAllOtherCopies] [xK_a, xK_k, xK_m, xK_o]
+        ])
+    , ((modm               , xK_c            ) , submap . M.fromList $
+        [ ((modm           , k               ) , warpToWindow (x/20) (y/20)) -- Move pointer to focused window's corners
+            | (k, x, y) <- zip3 [xK_w, xK_a, xK_s, xK_d, xK_f] [10,1,1,19,19] [10,19,1,1,19] -- corners and keys
+        ])
     , ((modm .|. mod3Mask  , xK_e            ) , runInTerm "" "sh -c 'gvim'") -- Lgvim
     , ((modm .|. mod3Mask  , xK_f            ) , raiseMaybe (spawn "firefox") (checkName "Firefox")) -- Lfirefox
     , ((modm .|. mod3Mask  , xK_n            ) , spawn "nautilus --no-desktop") -- Lnautalius
     , ((modm .|. mod3Mask  , xK_g            ) , windowPromptGoto  myXPConfig ) -- prompt
     , ((modm .|. mod3Mask  , xK_b            ) , windowPromptBring myXPConfig ) -- prompt
-    , ((modm .|. mod3Mask  , xK_c            ) , kill) -- kill focused window
     , ((modm .|. mod3Mask  , xK_j            ) , windows W.swapDown    ) -- Swap focused window with next window
     , ((modm .|. mod3Mask  , xK_k            ) , windows W.swapUp      ) -- Swap focused window with previous window
     , ((modm               , xK_Return       ) , windows W.swapMaster  ) -- Make focused window Master
     , ((modm               , xK_k            ) , windows W.focusUp     ) -- Move focus Up
     , ((modm               , xK_j            ) , windows W.focusDown   ) -- Move focus Down
     , ((modm               , xK_m            ) , windows W.focusMaster ) -- Focus  master window
-    , ((modm .|. controlMask, xK_n           ) , submap . M.fromList $
-        [ ((modm           , k               ) ,
-                do
-                spawn ("date>>"++"/home/japrogramer/Documents/Notes/NOTES" ++ r) -- Append time
-                appendFilePrompt myXPConfig $ "/home/japrogramer/Documents/Notes/NOTES" ++ r) -- Lprompt
-            | ( k, r ) <- zip [xK_w, xK_i, xK_s] ["work", "ideas", "sexy"]
-        ])
     , ((modm               , xK_e            ) , submap . M.fromList $
         [ ((modm               , xK_o        ) , viewEmptyWorkspace ) -- Switch to Empty workspace
         , ((modm .|. shiftMask , xK_o        ) , tagToEmptyWorkspace) -- Move window to Empty workspace
         ])
-    , ((modm               , xK_c            ) , submap . M.fromList $
-        [ ((modm           , k               ) , warpToWindow (x/20) (y/20)) -- Move pointer to focused window's corners
-            | (k, x, y) <- zip3 [xK_w, xK_a, xK_s, xK_d, xK_f] [10,1,1,19,19] [10,19,1,1,19] -- corners and keys
-        ])
     , ((modm               , xK_b            ) , submap . M.fromList $
         [ ((0              , xK_s            ) , withFocused toggleBorder ) -- toggleBorders, aesthetic
         , ((0              , xK_a            ) , withAll toggleBorder     ) -- toggleBorders, aesthetic
+        ])
+    , ((modm               , xK_v            ) , submap . M.fromList $
+        [ ((modm           , xK_a            ) , windows copyToAll  ) -- @@ Make focused window always visible
+        , ((modm           , xK_k            ) , killAllOtherCopies ) -- @@ Toggle window state back
         ])
     , ((modm               , xK_n            ) , refresh ) -- Resize viewed windows to the correct size
     , ((modm               , xK_space        ) , sendMessage NextLayout ) -- Next Layout
@@ -169,17 +177,24 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_t            ) , withFocused $ windows . W.sink ) -- Push window back into tiling
     , ((modm               , xK_g            ) , sendMessage $ ToggleStruts     ) -- Toggle the status bar gap
     , ((modm               , xK_q            ) , spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
+    , ((modm .|. shiftMask   , xK_q          ) , io $ exitWith ExitSuccess) --exit
     , ((modm .|. shiftMask , xK_k            ) , rotSlavesUp   ) -- rotSlavesUp without shifting Master
     , ((modm .|. shiftMask , xK_j            ) , rotSlavesDown ) -- rotSlavesDown without shifting Master
     , ((modm .|. controlMask , xK_j          ) , rotAllDown    ) -- This is weird when Layout is Mirror'
     , ((modm .|. controlMask , xK_k          ) , rotAllUp      ) -- This is weird when Layout is Mirror'
     , ((modm .|. controlMask , xK_y          ) , commands >>= runCommand)
-    , ((modm .|. shiftMask   , xK_q          ) , io $ exitWith ExitSuccess) --exit
+    , ((modm .|. controlMask , xK_n          ) , submap . M.fromList $
+        [ ((modm             , k             ) ,
+                do
+                spawn ("date>>"++ myNotesPath ++ r) -- Append time
+                appendFilePrompt myXPConfig $ myNotesPath ++ r) -- Lprompt
+            | ( k, r ) <- zip [xK_w, xK_i, xK_s] ["work", "ideas", "sexy"]
+        ])
     ]
     ++
     [((m .|. modm, k), windows $ f i )
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9] -- mod-[1..9], Switch to workspace N
-        , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask )]
+        , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask), (copy, shiftMask)]
     ]  -- mod-mod3Mask-[1..9], Move client to workspace N
     {- | ++
     --mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3, mod-mod3Mask-{w,e,r}, Move client to screen 1, 2, or 3
@@ -198,9 +213,9 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     ]
 -- }}}
 -- Layouts: {{{
-myLayout = avoidStruts                                   $
-           onWorkspace (myWorkspaces !! 4 ) pidginLayout $
-           onWorkspace (myWorkspaces !! 6 ) gimpLayouts  $
+myLayout = avoidStruts                                  $
+           onWorkspace (myWorkspaces !! 4) pidginLayout $
+           onWorkspace (myWorkspaces !! 6) gimpLayouts  $
            myLayouts
                where
                     myLayouts    = mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $
@@ -283,23 +298,23 @@ myFadeHook = composeAll . concat $
             my8Opacity = []
             my9Opacity = []
 
-myFadeHookHack = ( =<< ) idHook $ liftX (fadeWindowsLogHook myFadeHook)
--- }}}
--- Event handling {{{
-myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook
+-- myFadeHookHack = ( =<< ) idHook $ liftX (fadeWindowsLogHook myFadeHook)
 -- }}}
 -- debugcommands {{{
 commands :: X [(String, X ())]
 commands = return $ myCommands
             where
                 myCommands=[("killall" , killAll)
+                           ,("tagmocp" , withFocused (addTag "mocp"))
                            ]
 -- }}}
--- Status bars and logging {{{
-logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
+-- XPropManage {{{
+xPropMatches :: [XPropMatch]
+xPropMatches = [ ([ (wM_COMMAND, any ("mocp" `isInfixOf`))], pmX (addTag "mocp") )
+                    -- (\w -> addTag "mocp" w >> return (W.shift (myWorkspaces!!3))))
+               ]
 -- }}}
 -- Startup hook {{{
-
 myStartupHook :: X ()
 myStartupHook = do
                 spawnOnce   "gnome-settings-daemon"
@@ -307,6 +322,12 @@ myStartupHook = do
                 spawnOnce   "compton"
                 {- spawnOnce "compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6"-}
                 addScreenCorners [(SCUpperRight,nextWS) , (SCUpperLeft, prevWS)]
+-- }}}
+-- Event handling {{{
+myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook
+-- }}}
+-- Status bars and logging {{{
+logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- }}}
 -- Run xmonad {{{
 main = do
@@ -326,6 +347,6 @@ main = do
         layoutHook         = myLayout,
         startupHook        = myStartupHook,
         logHook            = logHook' myStatusBarPipe,
-        manageHook         = placeHook myPlacement <+> manageDocks <+> myManageHook <+> myFadeHookHack
+        manageHook         = placeHook myPlacement <+> manageDocks <+> myManageHook <+> xPropManageHook xPropMatches -- <+> myFadeHookHack
         }
 -- }}}
