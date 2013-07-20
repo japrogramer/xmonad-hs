@@ -91,6 +91,7 @@ myXPConfig =
     XPC { font                = myFont
         , defaultText         = []
         , autoComplete        = Just 1
+        , alwaysHighlight     = True
         , position            = Bottom
         , showCompletionOnTab = False
         , promptBorderWidth   = 1
