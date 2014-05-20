@@ -92,6 +92,7 @@ myXPConfig =
         , defaultText         = []
         , autoComplete        = Just 1
         , alwaysHighlight     = True
+        , alwaysHighlight     = True
         , position            = Bottom
         , showCompletionOnTab = False
         , promptBorderWidth   = 1
