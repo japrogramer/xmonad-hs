@@ -21,6 +21,7 @@ import XMonad.Hooks.FadeInactive (fadeOut)
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.Place
+import XMonad.Hooks.ToggleHook
 {-import QueryAnything-}
 import XMonad.Hooks.ScreenCorners
 import XMonad.Hooks.XPropManage
@@ -32,7 +33,8 @@ import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.Reflect
-import XMonad.Layout.ResizableTile -- End
+import XMonad.Layout.ResizableTile 
+import XMonad.Layout.Spacing -- End
 import XMonad.Prompt
 import XMonad.Prompt.AppendFile
 import XMonad.Prompt.RunOrRaise
@@ -61,15 +63,15 @@ myFGColor            = "#5B40BF"
 myModMask            = mod4Mask
 myFocusedBorderColor = myFGColor
 myNormalBorderColor  = myBGColor
-myFont               = "-*-terminus-*-*-*-*-12*-*-*-*-*"
+myFont               = "-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*"
 myWorkspaces         = ["λ","¥","ψ","δ","Σ","ζ","η","θ","¤"]
 myNotesPath          = "/home/japrogramer/Documents/Notes/NOTES"
 myDmenu              = "-nb '" ++ myBGColor ++ "' -sb '" ++ myFGColor ++ "' -fn '" ++ myFont ++ "' -b"
 myDzenGenOpts        = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
 -- }}}
 -- Dzen configs {{{
-myWorkspaceBar = "dzen2 -p -ta l -w 640 "        ++ myDzenGenOpts -- Status Bar
-myConkyBar     = "dzen2 -p -ta r -x 640 -w 640 " ++ myDzenGenOpts -- Conky Bar
+myWorkspaceBar = "dzen2 -p -ta l -w 720 "        ++ myDzenGenOpts -- Status Bar
+myConkyBar     = "dzen2 -p -ta r -x 720 -w 720 " ++ myDzenGenOpts -- Conky Bar
 
 myDzenPP = defaultPP { ppSep             = "^bg(" ++ myBGColor ++ ")^r(1,15)^bg()"
                      , ppWsSep           = " "
@@ -165,6 +167,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         [ ((0              , xK_s            ) , withFocused toggleBorder ) -- toggleBorders, aesthetic
         , ((0              , xK_a            ) , withAll toggleBorder     ) -- toggleBorders, aesthetic
         ])
+    , ((modm .|. shiftMask , xK_apostrophe   ) , toggleFullNext)
     , ((modm               , xK_v            ) , submap . M.fromList $
         [ ((modm           , xK_a            ) , windows copyToAll  ) -- @@ Make focused window always visible
         , ((modm           , xK_k            ) , killAllOtherCopies ) -- @@ Toggle window state back
@@ -214,7 +217,8 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     ]
 -- }}}
 -- Layouts: {{{
-myLayout = avoidStruts                                  $
+myLayout = spacing 2                                    $  
+           avoidStruts                                  $
            onWorkspace (myWorkspaces !! 4) pidginLayout $
            onWorkspace (myWorkspaces !! 6) gimpLayouts  $
            myLayouts
@@ -235,6 +239,20 @@ myLayout = avoidStruts                                  $
                     goldenRatio  = 2/(1+sqrt(5)::Double);
 -- }}}
 -- Window rules: {{{
+fullhookName :: String
+fullhookName = "__fullfloat"
+-- ToggleNextFullFloat 
+fullFloatNext :: ManageHook
+fullFloatNext = toggleHook fullhookName doFullFloat
+
+-- | @floatNext True@ arranges for the next spawned window to be
+-- sent to the floating layer, @floatNext False@ cancels it.
+fullNext :: Bool -> X ()
+fullNext = hookNext fullhookName
+
+toggleFullNext :: X ()
+toggleFullNext = toggleHookNext fullhookName 
+
 -- To find the property name associated with a program, use xprop | grep WM_CLASS
 checkName  x = (className =? x <||> title =? x <||> resource =? x)
 
@@ -250,12 +268,14 @@ myManageHook = composeAll . concat $
     , [checkName x --> doShiftAndGo (myWorkspaces!!8) | x <- my9Shifts]
     , [checkName x --> doFloat                        | x <- myTFloats]
     , [checkName x --> doIgnore                       | x <- myIgnores]
+    , [title =? x --> doFullFloat | x <- myFullFloats]
     , [isDialog    --> doFloat     ]
     , [isFullscreen --> doFullFloat]
     ]
         where
             doShiftAndGo = doF . liftM2 (.) W.greedyView W.shift
             myTFloats = ["Downloads", "XCalc", "Xmessage","Save As..."]
+            myFullFloats = ["freshwrapper fullscreen window"]
             myIgnores = []
             my1Shifts = []
             my2Shifts = ["Firefox"]
@@ -318,9 +338,10 @@ xPropMatches = [ ([ (wM_COMMAND, any ("mocp" `isInfixOf`))], pmX (addTag "mocp")
 -- Startup hook {{{
 myStartupHook :: X ()
 myStartupHook = do
-                spawnOnce   "gnome-settings-daemon"
-                spawnOnce   "nm-applet"
-                spawnOnce   "compton"
+                {-spawnOnce   "gnome-settings-daemon"-}
+                {-spawnOnce   "nm-applet"-}
+                spawnOnce   "feh --recursive --randomize --bg-scale ~/Pictures/wallpaper/"
+                spawnOnce   "compton --backend glx"
                 {- spawnOnce "compton -fF -I 0.025 -O 0.065 -D 1 -m 0.8 -i 0.6 -e 0.6"-}
                 addScreenCorners [(SCUpperRight,nextWS) , (SCUpperLeft, prevWS)]
 -- }}}
@@ -348,6 +369,6 @@ main = do
         layoutHook         = myLayout,
         startupHook        = myStartupHook,
         logHook            = logHook' myStatusBarPipe,
-        manageHook         = placeHook myPlacement <+> manageDocks <+> myManageHook <+> xPropManageHook xPropMatches -- <+> myFadeHookHack
+        manageHook         = {-- placeHook myPlacement <+> --} manageDocks <+> fullFloatNext <+> myManageHook <+> xPropManageHook xPropMatches  -- <+> myFadeHookHack
         }
 -- }}}

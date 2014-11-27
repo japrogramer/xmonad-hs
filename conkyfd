@@ -6,13 +6,15 @@ own_window yes
 own_window_type override
 update_interval 4.0 
 font -*-terminus-*-*-*-*-12-*-*-*-*-*-iso8859-*
-#^fg()^i(/home/japrogramer/.xmonad/icons/wifi_02.xbm) 
+#^fg()^i(/home/archangel/.xmonad/icons/wifi_02.xbm) 
+# ${execpi 3600 checkupdates | wc -l}
 
 TEXT
-${if_running mocp} ^fg()^i(/home/japrogramer/.xmonad/icons/play.xbm) ${exec mocp -Q %song | colrm 10 } ${endif} \
-${if_up wlan0}^i(/home/japrogramer/.xmonad/icons/net_up_03.xbm) ^fg()${upspeed wlan0} ^i(/home/japrogramer/.xmonad/icons/net_down_03.xbm) ^fg()${downspeed wlan0}${endif} \
-^i(/home/japrogramer/.xmonad/icons/cpu.xbm) ${cpu cpu0}% \
-^i(/home/japrogramer/.xmonad/icons/temp.xbm) ${hwmon 0 temp 1} \
-^i(/home/japrogramer/.xmonad/icons/mem.xbm) $memperc% \
-^i(/home/japrogramer/.xmonad/icons/arch.xbm) ${entropy_avail}/${entropy_poolsize} \
-^i(/home/japrogramer/.xmonad/icons/clock.xbm) ${time %b %e %a %w %I:%M:%S %p} ^i(/home/japrogramer/.xmonad/icons/shroom.xbm)
+${if_running mocp} ^fg()^i(/home/archangel/.xmonad/icons/play.xbm) ${exec mocp -Q %song | colrm 10 } ${endif} \
+${if_up wlp0s20u6}^i(/home/archangel/.xmonad/icons/net_up_03.xbm) ^fg()${upspeed wlp0s20u6} ^i(/home/archangel/.xmonad/icons/net_down_03.xbm) ^fg()${downspeed wlp0s20u6}${endif} \
+${if_up wlp3s0}^i(/home/archangel/.xmonad/icons/net_up_03.xbm) ^fg()${upspeed wlp3s0} ^i(/home/archangel/.xmonad/icons/net_down_03.xbm) ^fg()${downspeed wlp3s0}${endif} \
+^i(/home/archangel/.xmonad/icons/cpu.xbm) ${cpu cpu0}% \
+^i(/home/archangel/.xmonad/icons/temp.xbm) ${hwmon 0 temp 1} \
+^i(/home/archangel/.xmonad/icons/mem.xbm) $memperc% \
+^i(/home/archangel/.xmonad/icons/arch.xbm) ${entropy_avail}/${entropy_poolsize} \
+^i(/home/archangel/.xmonad/icons/clock.xbm) ${time %b %e %a %w %I:%M:%S %p} ^i(/home/archangel/.xmonad/icons/shroom.xbm) \
