@@ -65,7 +65,7 @@ myFocusedBorderColor = myFGColor
 myNormalBorderColor  = myBGColor
 myFont               = "-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*"
 myWorkspaces         = ["λ","¥","ψ","δ","Σ","ζ","η","θ","¤"]
-myNotesPath          = "/home/japrogramer/Documents/Notes/NOTES"
+myNotesPath          = "/home/archangel/Documents/Notes/NOTES"
 myDmenu              = "-nb '" ++ myBGColor ++ "' -sb '" ++ myFGColor ++ "' -fn '" ++ myFont ++ "' -b"
 myDzenGenOpts        = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
 -- }}}
@@ -130,6 +130,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
             | (i, k) <- ( zip [20] [xK_0 ..] ) ++ ( zip [10..]  [xK_1 .. xK_9] ) -- [1..9] opacity range
             , (f, m) <- [(withAll, modm), (withFocused, 0)] -- Operation done on all or one
         ])
+     --take a screenshot of entire display
+    , ((modm               , xK_Print        ) , spawn "scrot screen_%Y-%m-%d-%H-%M-%S.png -d 1")
+    --take a screenshot of focused window
+    , ((modm .|. controlMask, xK_Print       ) , spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1-u") 
     , ((modm               , xK_comma        ) , sendMessage $ IncMasterN 1   ) -- Increment number of windows in master area
     , ((modm               , xK_period       ) , sendMessage $ IncMasterN $ -1) -- Deincrement number of windows in master area
     , ((modm               , xK_bracketleft  ) , sendMessage $ Toggle REFLECTX) -- REFLECTX Layout
@@ -181,7 +185,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_t            ) , withFocused $ windows . W.sink ) -- Push window back into tiling
     , ((modm               , xK_g            ) , sendMessage $ ToggleStruts     ) -- Toggle the status bar gap
     , ((modm               , xK_q            ) , spawn "killall conky dzen2; xmonad --recompile; xmonad --restart") -- Restart xmonad
-    , ((modm .|. shiftMask   , xK_q          ) , io $ exitWith ExitSuccess) --exit
+    , ((modm .|. shiftMask , xK_q            ) , io $ exitWith ExitSuccess) --exit
     , ((modm .|. shiftMask , xK_k            ) , rotSlavesUp   ) -- rotSlavesUp without shifting Master
     , ((modm .|. shiftMask , xK_j            ) , rotSlavesDown ) -- rotSlavesDown without shifting Master
     , ((modm .|. controlMask , xK_j          ) , rotAllDown    ) -- This is weird when Layout is Mirror'
