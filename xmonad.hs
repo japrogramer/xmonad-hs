@@ -63,15 +63,17 @@ myFGColor            = "#5B40BF"
 myModMask            = mod4Mask
 myFocusedBorderColor = myFGColor
 myNormalBorderColor  = myBGColor
-myFont               = "-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*"
+{-xfontsel-}
+myFont               = "-*-terminus-*-*-*-*-22-*-*-*-*-*-*-*"
+myBoldFont           = "-*-terminus-bold-*-*-*-22-*-*-*-*-*-*-*"
 myWorkspaces         = ["λ","¥","ψ","δ","Σ","ζ","η","θ","¤"]
 myNotesPath          = "/home/archangel/Documents/Notes/NOTES"
-myDmenu              = "-nb '" ++ myBGColor ++ "' -sb '" ++ myFGColor ++ "' -fn '" ++ myFont ++ "' -b"
-myDzenGenOpts        = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myFont ++ "' -h '16' "
+myDmenu              = "-nb '" ++ myBGColor ++ "' -sb '" ++ myFGColor ++ "' -fn '" ++ myBoldFont ++ "' -b"
+myDzenGenOpts        = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myBoldFont ++ "' -h '30' "
 -- }}}
 -- Dzen configs {{{
-myWorkspaceBar = "dzen2 -p -ta l -y 1080 -w 960 "        ++ myDzenGenOpts -- Status Bar
-myConkyBar     = "dzen2 -p -ta r -y 1080 -x 960 -w 960 " ++ myDzenGenOpts -- Conky Bar
+myWorkspaceBar = "dzen2 -p -ta l -y 2160 -w 1920 "        ++ myDzenGenOpts -- Status Bar
+myConkyBar     = "dzen2 -p -ta r -y 2160 -x 1920 -w 1920 " ++ myDzenGenOpts -- Conky Bar
 
 myDzenPP = defaultPP { ppSep             = "^bg(" ++ myBGColor ++ ")^r(1,15)^bg()"
                      , ppWsSep           = " "
@@ -204,13 +206,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9] -- mod-[1..9], Switch to workspace N
         , (f, m) <- [(W.greedyView, 0), (W.shift, mod3Mask), (copy, shiftMask)]
     ]  -- mod-mod3Mask-[1..9], Move client to workspace N
-    {-  ++
+     ++
     [
     ((mod4Mask, xK_o), nextScreen)
     , ((mod4Mask .|. shiftMask, xK_o), shiftNextScreen)
     , ((mod4Mask .|. mod1Mask, xK_o), swapNextScreen)
     ]
-    -}
     {- | ++
     --mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3, mod-mod3Mask-{w,e,r}, Move client to screen 1, 2, or 3
     [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
