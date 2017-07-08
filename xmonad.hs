@@ -72,8 +72,8 @@ myDmenu              = "-nb '" ++ myBGColor ++ "' -sb '" ++ myFGColor ++ "' -fn 
 myDzenGenOpts        = "-fg '" ++ myFGColor ++ "' -bg '" ++ myBGColor ++ "' -fn '" ++ myBoldFont ++ "' -h '30' "
 -- }}}
 -- Dzen configs {{{
-myWorkspaceBar = "dzen2 -p -ta l -y 2160 -w 1920 "        ++ myDzenGenOpts -- Status Bar
-myConkyBar     = "dzen2 -p -ta r -y 2160 -x 1920 -w 1920 " ++ myDzenGenOpts -- Conky Bar
+myWorkspaceBar = "dzen2 -dock -p -ta l -y 2160 -w 1920 "        ++ myDzenGenOpts -- Status Bar
+myConkyBar     = "dzen2 -dock -p -ta r -y 2160 -x 1920 -w 1920 " ++ myDzenGenOpts -- Conky Bar
 
 myDzenPP = defaultPP { ppSep             = "^bg(" ++ myBGColor ++ ")^r(1,15)^bg()"
                      , ppWsSep           = " "
@@ -102,7 +102,7 @@ myXPConfig =
         , height              = 18
         , historySize         = 25
         , historyFilter       = id
-        , completionKey       = xK_Tab
+        , completionKey       = (0    , xK_Tab)
         , borderColor         = myFocusedBorderColor
         , promptKeymap        = defaultXPKeymap
         , bgColor             = myBGColor
@@ -135,7 +135,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
      --take a screenshot of entire display
     , ((modm               , xK_Print        ) , spawn "scrot ~/Pictures/screen_%Y-%m-%d-%H-%M-%S.png -d 1")
     --take a screenshot of focused window
-    , ((modm .|. controlMask, xK_Print       ) , spawn "scrot ~/Pictures/window_%Y-%m-%d-%H-%M-%S.png -d 1-u") 
+    , ((modm .|. controlMask, xK_Print       ) , spawn "scrot ~/Pictures/window_%Y-%m-%d-%H-%M-%S.png -d 1 -u") 
     , ((modm               , xK_comma        ) , sendMessage $ IncMasterN 1   ) -- Increment number of windows in master area
     , ((modm               , xK_period       ) , sendMessage $ IncMasterN $ -1) -- Deincrement number of windows in master area
     , ((modm               , xK_bracketleft  ) , sendMessage $ Toggle REFLECTX) -- REFLECTX Layout
@@ -184,7 +184,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_space        ) , sendMessage NextLayout ) -- Next Layout
     , ((modm               , xK_h            ) , sendMessage Shrink     ) -- Shrink master area
     , ((modm               , xK_l            ) , sendMessage Expand     ) -- Expand master area
-    , ((modm               , xK_f            ) , runInTerm "" "sh -c 'ranger'"  ) -- Lranger
+    , ((modm               , xK_f            ) , runInTerm "" "zsh -c 'ranger'"  ) -- Lranger
     , ((modm               , xK_p            ) , spawn $ "dmenu_run " ++ myDmenu) -- Ldmenu
     , ((modm               , xK_t            ) , withFocused $ windows . W.sink ) -- Push window back into tiling
     , ((modm               , xK_g            ) , sendMessage $ ToggleStruts     ) -- Toggle the status bar gap
@@ -238,6 +238,7 @@ myLayout = -- spacing 2                                    $
            myLayouts
                where
                     myLayouts    = mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $
+                                   {-$ layoutHintsToCenter(tiled)-}
                                    ( tiled ||| Mirror tiled ||| Circle ||| full )
                     pidginLayout = mkToggle (single REFLECTX) $ withIM (15/100) (Role "buddy_list") tiled
                     gimpLayouts  = gimpLayout ||| gimpLayout2
@@ -381,7 +382,7 @@ main = do
         mouseBindings      = myMouseBindings,
         handleEventHook    = myEventHook, -- <+> debugKeyEvents,
         layoutHook         = myLayout,
-        startupHook        = myStartupHook,
+        startupHook        = myStartupHook <+> docksStartupHook,
         logHook            = logHook' myStatusBarPipe,
         manageHook         = {-- placeHook myPlacement <+> --} manageDocks <+> fullFloatNext <+> myManageHook <+> xPropManageHook xPropMatches  -- <+> myFadeHookHack
         }
