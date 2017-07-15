@@ -143,8 +143,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_semicolon    ) , cycleRecentWS [xK_Alt_L] xK_semicolon xK_apostrophe) -- recent workspace
     , ((modm .|. mod3Mask  , xK_space        ) , setLayout   $ XMonad.layoutHook conf) -- Reset layout
     , ((modm .|. mod3Mask  , xK_Return       ) , spawn       $ XMonad.terminal   conf) -- Lterminal
-    , ((modm .|. mod3Mask  , xK_t            ) , runInTerm "" "sh -c 'tmux'") -- LTERMINAL with tmux
-    , ((modm .|. shiftMask , xK_t            ) , runInTerm "" "sh -c 'tmux attach'") -- LTERMINAL with tmux attach
+    , ((modm .|. mod3Mask  , xK_t            ) , runInTerm "" "zsh -i -c 'tmux'") -- LTERMINAL with tmux
+    , ((modm .|. shiftMask , xK_t            ) , runInTerm "" "zsh -i -c 'tmux attach'") -- LTERMINAL with tmux attach
     , ((modm .|. shiftMask , xK_Tab          ) , prevWS) -- change prevWorkSpace
     , ((modm               , xK_Tab          ) , nextWS) -- change nextWorkSpace
     , ((modm .|. shiftMask , xK_c            ) , kill ) -- Fast kill
