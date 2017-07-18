@@ -184,7 +184,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm               , xK_space        ) , sendMessage NextLayout ) -- Next Layout
     , ((modm               , xK_h            ) , sendMessage Shrink     ) -- Shrink master area
     , ((modm               , xK_l            ) , sendMessage Expand     ) -- Expand master area
-    , ((modm               , xK_f            ) , runInTerm "" "zsh -c 'ranger'"  ) -- Lranger
+    , ((modm               , xK_f            ) , runInTerm "" "zsh -i -c 'ranger'"  ) -- Lranger
     , ((modm               , xK_p            ) , spawn $ "dmenu_run " ++ myDmenu) -- Ldmenu
     , ((modm               , xK_t            ) , withFocused $ windows . W.sink ) -- Push window back into tiling
     , ((modm               , xK_g            ) , sendMessage $ ToggleStruts     ) -- Toggle the status bar gap
