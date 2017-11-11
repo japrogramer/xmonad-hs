@@ -57,7 +57,7 @@ import qualified XMonad.StackSet as W
 -- Setttings {{{
 myBorderWidth        = 1
 myfocusMouse         = True
-myTerminal           = "urxvt"
+myTerminal           = "st"
 myBGColor            = "#2e3436"
 myFGColor            = "#5B40BF"
 myModMask            = mod4Mask
@@ -122,7 +122,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
                                                  windows $ W.greedyView (myWorkspaces !! 3)
                                                  spawn "mocp -G") -- XF86AudioPlay
     , ((controlMask        , 0x1008ff14      ) , spawn "mocp -G") -- XF86AudioPlay
-    , ((modm               , 0x1008ff14      ) , runInTerm "" "sh -c 'mocp -T darkdot_theme'") -- Lmocp temporary untill TODO1 above
+    , ((modm               , 0x1008ff14      ) , runInTerm "" "zsh -i -c 'mocp -T moca_theme'") -- Lmocp temporary untill TODO1 above
     , ((modm               , xK_F12          ) , spawn "killall compton;sleep 1;compton") -- Lcompton
     , ((modm               , xK_minus        ) , spawn "transset-df -a --dec .05" ) -- Ltransperancy
     , ((modm               , xK_equal        ) , spawn "transset-df -a --inc .05" ) -- Ltransperancy
