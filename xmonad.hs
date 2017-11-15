@@ -367,6 +367,7 @@ myEventHook = fullscreenEventHook <+> docksEventHook <+> screenCornerEventHook
 logHook' h = dynamicLogWithPP $ myDzenPP { ppOutput = hPutStrLn h }
 -- }}}
 -- Run xmonad {{{
+main :: IO ()
 main = do
     myStatusBarPipe <- spawnPipe myWorkspaceBar
     conckyBar <- spawnPipe ( "conky -c ~/.xmonad/conkyfd | " ++ myConkyBar)
